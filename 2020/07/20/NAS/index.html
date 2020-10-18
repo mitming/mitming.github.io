@@ -1,0 +1,416 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Network Architecture Search | Ming</title><meta name="keywords" content="NAS"><meta name="author" content="Ming Li"><meta name="copyright" content="Ming Li"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="NAS with RL原文是: Neural Architecture Search with Reinforcement Learning作者观察到神经网络的结构和连通性可以用一个长度可变的字符串决定，所以使用一个 RNN 的 controller 来生成这样的字符串，即使用控制器来采样得到一个网络结构 A，在该神经网络结构下训练数据并且得到相应的验证集上的准确率 R，使用该准确率来表征本次搜索">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Network Architecture Search">
+<meta property="og:url" content="https://coderming.cn/2020/07/20/NAS/index.html">
+<meta property="og:site_name" content="Ming">
+<meta property="og:description" content="NAS with RL原文是: Neural Architecture Search with Reinforcement Learning作者观察到神经网络的结构和连通性可以用一个长度可变的字符串决定，所以使用一个 RNN 的 controller 来生成这样的字符串，即使用控制器来采样得到一个网络结构 A，在该神经网络结构下训练数据并且得到相应的验证集上的准确率 R，使用该准确率来表征本次搜索">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/avatar.png">
+<meta property="article:published_time" content="2020-07-20T07:46:57.000Z">
+<meta property="article:modified_time" content="2020-09-01T03:29:54.670Z">
+<meta property="article:author" content="Ming Li">
+<meta property="article:tag" content="NAS">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/avatar.png"><link rel="shortcut icon" href="/img/avatar.jpg"><link rel="canonical" href="https://coderming.cn/2020/07/20/NAS/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  hexoversion: '5.2.0',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: true,
+  postUpdate: '2020-09-01 11:29:54'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {
+  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }
+})()</script><meta name="generator" content="Hexo 5.2.0"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">Articles</div><div class="length_num">18</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">Tags</div><div class="length_num">14</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">Categories</div><div class="length_num">7</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/images/"><i class="fa-fw fas fa-images"></i><span> Images</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div></div></div></div><div id="body-wrap"><div id="web_bg"></div><div id="sidebar"><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#NAS-with-RL"><span class="toc-number">1.</span> <span class="toc-text">NAS with RL</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Contribution"><span class="toc-number">1.1.</span> <span class="toc-text">Contribution</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Generate-Model-with-RNN"><span class="toc-number">1.2.</span> <span class="toc-text">Generate Model with RNN</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Training-with-RL"><span class="toc-number">1.3.</span> <span class="toc-text">Training with RL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Parallelism-and-Asynchronous-Updates"><span class="toc-number">1.4.</span> <span class="toc-text">Parallelism and Asynchronous Updates</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Add-Skip-Connection-and-Other-Layers"><span class="toc-number">1.5.</span> <span class="toc-text">Add Skip Connection and Other Layers</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Generate-Recurrent-Cell-Architectures"><span class="toc-number">1.6.</span> <span class="toc-text">Generate Recurrent Cell Architectures</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Overview-of-NAS-Architecture"><span class="toc-number">1.7.</span> <span class="toc-text">Overview of NAS Architecture</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Results"><span class="toc-number">1.8.</span> <span class="toc-text">Results</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#NASNet"><span class="toc-number">2.</span> <span class="toc-text">NASNet</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Problems-in-NAS-with-RL"><span class="toc-number">2.1.</span> <span class="toc-text">Problems in NAS with RL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Contribution-1"><span class="toc-number">2.2.</span> <span class="toc-text">Contribution</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Predetermined-Architectures"><span class="toc-number">2.3.</span> <span class="toc-text">Predetermined Architectures</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Convolutional-Cell"><span class="toc-number">2.3.1.</span> <span class="toc-text">Convolutional Cell</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Network-Architecture"><span class="toc-number">2.3.2.</span> <span class="toc-text">Network Architecture</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Search-Space"><span class="toc-number">2.4.</span> <span class="toc-text">Search Space</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Discovery"><span class="toc-number">2.5.</span> <span class="toc-text">Discovery</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Results-1"><span class="toc-number">2.6.</span> <span class="toc-text">Results</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Details"><span class="toc-number">2.7.</span> <span class="toc-text">Details</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Scheduled-Drop-Path"><span class="toc-number">2.7.1.</span> <span class="toc-text">Scheduled Drop Path</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Hyperparameters"><span class="toc-number">2.7.2.</span> <span class="toc-text">Hyperparameters</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#ENAS"><span class="toc-number">3.</span> <span class="toc-text">ENAS</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Contribution-2"><span class="toc-number">3.1.</span> <span class="toc-text">Contribution</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Idea"><span class="toc-number">3.2.</span> <span class="toc-text">Idea</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Designing-Recurrent-Cells"><span class="toc-number">3.3.</span> <span class="toc-text">Designing Recurrent Cells</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Training-ENAS-and-Deriving-Architectures"><span class="toc-number">3.4.</span> <span class="toc-text">Training ENAS and Deriving Architectures</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Training-shared-parameters"><span class="toc-number">3.4.1.</span> <span class="toc-text">Training shared parameters</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Training-controller-parameters"><span class="toc-number">3.4.2.</span> <span class="toc-text">Training controller parameters</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Deriving-Architecture"><span class="toc-number">3.4.3.</span> <span class="toc-text">Deriving Architecture</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Designing-Convolutional-Networks"><span class="toc-number">3.5.</span> <span class="toc-text">Designing Convolutional Networks</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Designing-Convolutional-Cells"><span class="toc-number">3.6.</span> <span class="toc-text">Designing Convolutional Cells</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Results-2"><span class="toc-number">3.7.</span> <span class="toc-text">Results</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#MnasNet"><span class="toc-number">4.</span> <span class="toc-text">MnasNet</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Contribution-3"><span class="toc-number">4.1.</span> <span class="toc-text">Contribution</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Problem-Formulation"><span class="toc-number">4.2.</span> <span class="toc-text">Problem Formulation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Architecture-Search"><span class="toc-number">4.3.</span> <span class="toc-text">Architecture Search</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Search-Algorithm"><span class="toc-number">4.4.</span> <span class="toc-text">Search Algorithm</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Results-3"><span class="toc-number">4.5.</span> <span class="toc-text">Results</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#EfficientNet"><span class="toc-number">5.</span> <span class="toc-text">EfficientNet</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Contribution-4"><span class="toc-number">5.1.</span> <span class="toc-text">Contribution</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Idea-1"><span class="toc-number">5.2.</span> <span class="toc-text">Idea</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Compound-Model-Scaling"><span class="toc-number">5.3.</span> <span class="toc-text">Compound Model Scaling</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Problem-Formulation-1"><span class="toc-number">5.3.1.</span> <span class="toc-text">Problem Formulation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Scaling-Dimensions"><span class="toc-number">5.3.2.</span> <span class="toc-text">Scaling Dimensions</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Compound-Scaling-Methods"><span class="toc-number">5.3.3.</span> <span class="toc-text">Compound Scaling Methods</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EfficientNet-Architecture"><span class="toc-number">5.4.</span> <span class="toc-text">EfficientNet Architecture</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#EfficientNet-B0"><span class="toc-number">5.4.1.</span> <span class="toc-text">EfficientNet-B0</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#EfficientNet-B1-to-EfficientNet-B7"><span class="toc-number">5.4.2.</span> <span class="toc-text">EfficientNet-B1 to EfficientNet-B7</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Results-4"><span class="toc-number">5.5.</span> <span class="toc-text">Results</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Darts"><span class="toc-number">6.</span> <span class="toc-text">Darts</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Contribution-5"><span class="toc-number">6.1.</span> <span class="toc-text">Contribution</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Idea-2"><span class="toc-number">6.2.</span> <span class="toc-text">Idea</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Search-Space-1"><span class="toc-number">6.3.</span> <span class="toc-text">Search Space</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Continuous-Relaxation-and-Optimization"><span class="toc-number">6.4.</span> <span class="toc-text">Continuous Relaxation and Optimization</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Approximate-Architecture-Gradient"><span class="toc-number">6.5.</span> <span class="toc-text">Approximate Architecture Gradient</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Deriving-Discrete-Architectures"><span class="toc-number">6.6.</span> <span class="toc-text">Deriving Discrete Architectures</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Experiment-Details"><span class="toc-number">6.7.</span> <span class="toc-text">Experiment Details</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Results-5"><span class="toc-number">6.8.</span> <span class="toc-text">Results</span></a></li></ol></li></ol></div></div></div><header class="post-bg" id="page-header" style="background-image: url(https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/avatar.png)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Ming</a></span><span id="menus"><div id="search_button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> Search</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/images/"><i class="fa-fw fas fa-images"></i><span> Images</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div></div><span class="close" id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">Network Architecture Search</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2020-07-20T07:46:57.000Z" title="Created 2020-07-20 15:46:57">2020-07-20</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2020-09-01T03:29:54.670Z" title="Updated 2020-09-01 11:29:54">2020-09-01</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/NAS/">NAS</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word count:</span><span class="word-count">11.6k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading time:</span><span>41min</span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h1 id="NAS-with-RL"><a href="#NAS-with-RL" class="headerlink" title="NAS with RL"></a>NAS with RL</h1><p>原文是: <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1611.01578.pdf">Neural Architecture Search with Reinforcement Learning</a><br>作者观察到神经网络的结构和连通性可以用一个长度可变的字符串决定，所以使用一个 RNN 的 controller 来生成这样的字符串，即使用控制器来采样得到一个网络结构 A，在该神经网络结构下训练数据并且得到相应的验证集上的准确率 R，使用该准确率来表征本次搜索得到的神经网络结构的好坏，进而将此作为信号来训练 RNN 控制器，利用 policy gradient 来更新 RNN 控制器，从而得到更好的结果。</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/overview_NAS_with_RL.png"></p>
+<h2 id="Contribution"><a href="#Contribution" class="headerlink" title="Contribution"></a>Contribution</h2><p>首次提出 NAS 的概念，成功为深度学习挖了新坑 (逃</p>
+<h2 id="Generate-Model-with-RNN"><a href="#Generate-Model-with-RNN" class="headerlink" title="Generate Model with RNN"></a>Generate Model with RNN</h2><p>这里使用一个由 RNN 组成的控制器来生成网络结构的各种超参数，假设前向传播的网络都是卷积层，那么生成每一层卷积的结构可以用下图实现：<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/controller_rnn_sample.png"></p>
+<p>上图中每一个预测结果都由 softmax 来得到，将得到的结果作为下一个时间步的输入，当网络深度达到一定时，停止生成。每当 RNN 生成一个结构后，整个网络就会进行训练，然后把在验证集上的精度作为反馈来更新 RNN 中的参数 $\theta_c$</p>
+<h2 id="Training-with-RL"><a href="#Training-with-RL" class="headerlink" title="Training with RL"></a>Training with RL</h2><p>可以把预测的结果看成是一系列用于产生 child network 的 action: $\alpha_{1:T}$，然后 child network 会得到一个在验证集上的准确度 $R$，使用这个 $R$ 作为 reward signal 并使用强化学习来训练控制器，为了找到最佳的结构，控制器需要最大化 reward：<br>$$<br>J(\theta_{c}) = E_{P(a_{1:T}; \theta_{c})}[R]<br>$$</p>
+<p>由于 $R$ 是不可微的，所以作者使用策略梯度(policy gradient)的方式来更新控制器中的参数：<br>$$\nabla_{\theta_{c}} J\left(\theta_{c}\right)=\sum_{t=1}^{T} E_{P\left(a_{1: T} ; \theta_{c}\right)}\left[\nabla_{\theta_{c}} \log P\left(a_{t} \mid a_{(t-1): 1} ; \theta_{c}\right) R\right]$$</p>
+<p>上式的计算可以近似为：<br>$$<br>\frac{1}{m} \sum_{k=1}^{m} \sum_{t=1}^{T} \nabla_{\theta_{c}} \log P\left(a_{t} \mid a_{(t-1): 1} ; \theta_{c}\right) R_{k}<br>$$</p>
+<p>其中 $m$ 为采样的不同的结构数目，$T$ 是控制器必须预测的超参数的数目，$R_{k}$ 是第  k个神经网络结构在训练数据集上训练后所达到的验证集精度。上式是梯度的一个无偏估计，但有一个很高的方差，为了减少这个方差作者使用了一个 baseline function $b$：<br>$$<br>\frac{1}{m} \sum_{k=1}^{m} \sum_{t=1}^{T} \nabla_{\theta_{c}} \log P\left(a_{t} \mid a_{(t-1): 1} ; \theta_{c}\right)(R_{k} - b)<br>$$</p>
+<p>只要 baseline function 不依赖于当前的动作，那就仍然是一个梯度的无偏估计，在文中 $b$(baseline function) 是之前网络结构准确度的一个移动指数平均。</p>
+<h2 id="Parallelism-and-Asynchronous-Updates"><a href="#Parallelism-and-Asynchronous-Updates" class="headerlink" title="Parallelism and Asynchronous Updates"></a>Parallelism and Asynchronous Updates</h2><p>这一块主要是为了加速计算，一共有 $S$ 个 Parameter Server用于存储 $K$ 个 Controller Replica 的共享参数。然后每个 Controller Replica 生成 $m$ 个并行训练的自网络，controller 会根据 $m$ 个子网络结构在收敛时得到的结果收集得到梯度值，然后为了更新所有 Controller Replica，会把梯度值传递给 Parameter Server，当训练迭代次数超过一定次数则认为子网络收敛。<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/accurate_compute_in_nas_training.png"></p>
+<h2 id="Add-Skip-Connection-and-Other-Layers"><a href="#Add-Skip-Connection-and-Other-Layers" class="headerlink" title="Add Skip Connection and Other Layers"></a>Add Skip Connection and Other Layers</h2><p>这部分是介绍 set-selection type attention 方法用于添加类似于 ResNet 的跳接结构以及类似于 GoogleNet 的 branching 结构。具体的，在第 $N$ 层，作者添加了一个 anchor point，用于根据前面得到的 $N-1$ 个层的 $sigmoid$ 来判断是否与前面的 $N-1$ 层相连，每个 $sigmoid$ 都是当前控制器的 hidden state 和之前 $N-1$ 个 anchor points 的 hidden states 的方程：<br>$$<br>\mathrm{P}(\text { Layer } \mathrm{j} \text { is an input to layer } \mathrm{i})=\operatorname{sigmoid}\left(v^{\mathrm{T}} \tanh \left(W_{\text {prev}} * h_{j}+W_{\text {curr}} * h_{i}\right)\right)<br>$$</p>
+<p>其中 $h_{j}$ 表示控制器在第 $j$ 个 layer 的 anchor point 的隐藏态，$j \in [0, N-1]$，这样就能够决定使用之前哪个层的输出作为当前层的输入了。其中矩阵 $W_{prev}, W_{curr}, v$ 都是可以训练得到的参数。由于这些连接可以通过这种方式被定义为概率分布，那么之前使用的强化学习方法就能够在不进行显著修改的情况下使用。</p>
+<p>利用 anchor point 和 set-selection type attention 进行添加层级结构的示意图如下：<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/nas_with_rl_form_skip_connections.png"></p>
+<p>这里有几点需要注意的地方：</p>
+<ol>
+<li>如果一个层有来自多个之前层的输入，那么把它们在通道维度进行 concatenate。</li>
+<li>如果一个层没有任何一个层的输出作为输入，那么把原图片作为输入。</li>
+<li>在最后一层把所有没有被 connected 的输出在通道维度上  concatenate 起来作为输入。</li>
+<li>如果需要 concatenated 的输入层有不同的 size，那么将小一点的层通过补 zero-padding 来保证一样大小。</li>
+</ol>
+<h2 id="Generate-Recurrent-Cell-Architectures"><a href="#Generate-Recurrent-Cell-Architectures" class="headerlink" title="Generate Recurrent Cell Architectures"></a>Generate Recurrent Cell Architectures</h2><p>考虑到普通 RNN 和 LSTM 的结构特点，作者还是使用了 LSTM 来生成最终的 recurrent Cells，这样相比于 RNN 就多了 2 个变量，分别是细胞态 $c_{t-1}$ 和 $c_{t}$</p>
+<p>作者使用树这种数据结构来生成 Cells，在每一个时间步都需要将前一时间步的隐藏态 $h_{t-1}$，细胞态 $c_{t-1}$ 和当前的 $x_t$ 作为输入，从而得到输出的隐藏态 $h_{t}$ 和 细胞态 $c_{t}$，这 2 个输出又作为下一个时间步的输入。</p>
+<p>控制器需要使用一种结合方法(例如 addition, element-wise multiplication) 对树中的每个节点进行标记，并使用一种激活函数来得到最终输出，为了让控制器 RNN 选择这些方法和函数，作者按顺序索引树中的节点，以便控制器 RNN 可以逐个访问每个节点并标记所需的超参数。</p>
+<p>为了更好地进行说明这个过程，作者根据下图举了个例子，控制器首先需要预测 3 个 blocks, 每个 block 定义了一种结合方法和激活函数，然后需要预测最后 2 个 blocks，用于如何将 $c_{t}$ 和 $c_{t-1}$ 和树中的 2 个临时变量联系起来：<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/example_of_nas_with_rl.png"></p>
+<ul>
+<li>左边的图表示每一个 recurrent Cell 都由一颗树组成，这棵树有 2 个叶子结点和 1 个内部结点，每颗树都代表了控制器预测的计算步骤。</li>
+<li>中间的图表示控制器针对树中每个计算步骤作出的一组预测示例。</li>
+<li>右边的图表示根据控制器预测示例结果所得到的 recurrent Cell 的计算图。</li>
+</ul>
+<p>根据上面的例子，会发生以下几个计算步骤：</p>
+<ol>
+<li>控制器为 index=0 的 tree 预测了 $Add$ 和 $Tanh$，所以需要计算 $a_{0} = tanh(W_{1} \cdot x_t + W_{2} \cdot h_{t-1})$</li>
+<li>控制器为 index=1 的 tree 预测了 $ElemMult$ 和 $ReLU$，所以需要计算 $a_{1}=\operatorname{ReLU}\left(\left(W_{3} * x_{t}\right) \odot\left(W_{4} * h_{t-1}\right)\right)$</li>
+<li>控制器为 “Cell Index” 的第二个元素预测了 0，说明 $a_0$ 的值需要更新, 为 “Cell Inject” 预测了 $Add$ 和 $ReLU$，所以需要计算 $a_{0}^{new} = ReLU(a_0 + c_{t-1})$</li>
+<li>控制器为 index 2 的 tree 预测了 $ElemMult$ 和 $Sigmoid$，所以需要计算 $a_2 = sigmoid(a_0^{new} \odot a_1)$，由于树的最大 index 是 2，所以令 $h_t = a_2$</li>
+<li>控制器为 “Cell Index” 的第一个元素预测了 1，意味着应该将输出的细胞态 $c_t$ 设置为 index=1 的 tree 在激活函数之前的输出：$c_{t} = (W_{3} * x_{t}) \odot (W_{4} * h_{t-1})$</li>
+</ol>
+<p>在上面的例子中一颗树只有 2 个叶结点，所以被称为 “base 2”，在实验中作者将 base number 设置为 8 来确保每个 Cell 的表达能力。</p>
+<h2 id="Overview-of-NAS-Architecture"><a href="#Overview-of-NAS-Architecture" class="headerlink" title="Overview of NAS Architecture"></a>Overview of NAS Architecture</h2><p>可能还是有的同学不明白图 4 和图 5 的关系，其实图 4 展示的是如何生成每一层的卷积(每一层具体的网络结构，例如卷积核的大小，数量等)，而图 5 展示的是如何使用 LSTM 来生成整个网络结构(如何生成每个时间步的细胞态$c_t$ 和隐藏态$h_t$)，图 5 中每个时间步的输入 $x_t$ 其实就是上一个时间步的输出 $y_{t-1}$，网络的总体结构可以用下图来表示：<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/pipeline_nas.png"></p>
+<p>上图中的隐藏态 $h_{t-1}$ 和细胞态 $c_{t-1}$ 其实就是之前卷积层 anchor point 得到的特征图，$x_t$ 是当前时间步的输入也是上一时间步的输出，为上图中的 $add$，$Tanh$ 等操作。</p>
+<h2 id="Results"><a href="#Results" class="headerlink" title="Results"></a>Results</h2><p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/nas_result_on_cifar10.png"></p>
+<p>可以看到效果相对手工设计的网络来说还是不错的。</p>
+<h1 id="NASNet"><a href="#NASNet" class="headerlink" title="NASNet"></a>NASNet</h1><p>原文是<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1707.07012.pdf">Learning Transferable Architectures for Scalable Image Recognition</a></p>
+<h2 id="Problems-in-NAS-with-RL"><a href="#Problems-in-NAS-with-RL" class="headerlink" title="Problems in NAS with RL"></a>Problems in NAS with RL</h2><p>上面的 NAS with RL 能够完成实在是因为 Google 太太太太太太太太(8个)有钱了，在 CIFAR-10 上都得用 800 个 GPU 跑快一个月，就更别提 ImageNet 这种数据集了，更加困难，也没哪个网络会在 CIFAR-10 这种数据集上说自己厉害，换句话说，NAS with RL 搜出来的结构没有在大规模的数据集上有良好的表现，所以还不足以让人信服，而且耗费时间太长，无论是学术界还是工业界，真的玩不起。这次的 NASNet 速度比上次快多了，500 块 GPU 只跑了 4 天就跑完了（再次劝退）。</p>
+<h2 id="Contribution-1"><a href="#Contribution-1" class="headerlink" title="Contribution"></a>Contribution</h2><p>先搜索一个 Cell，再通过堆叠更多的这些网络单元生成最终的网络，这样搜出来的网络被称为<code>NASNet</code>，有点类似于直接搜索 residual block，然后把搜索得到的 residual block 堆叠起来就得到了最终的 NAS-ResNet， 真·曲线救国。</p>
+<h2 id="Predetermined-Architectures"><a href="#Predetermined-Architectures" class="headerlink" title="Predetermined Architectures"></a>Predetermined Architectures</h2><h3 id="Convolutional-Cell"><a href="#Convolutional-Cell" class="headerlink" title="Convolutional Cell"></a>Convolutional Cell</h3><p>在 NASNet 中，完整的网络的结构还是需要手动设计的，NASNet 学习的是完整网络中被堆叠、被重复使用的网络单元。为了能够适应任何尺寸的图像，作者设计 2 种类型的卷积 Cell：</p>
+<ol>
+<li>Normal Cell: 输入和输出特征图的 size 相同</li>
+<li>Reduction Cell: 输出特征图的 size 是输入特征图 size 的 $\frac{1}{2}$</li>
+</ol>
+<h3 id="Network-Architecture"><a href="#Network-Architecture" class="headerlink" title="Network Architecture"></a>Network Architecture</h3><p>作者为 CIFAR-10 和 ImageNet 分别进行了网络的设计，如图所示：<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/architectures_on_diff_datasets.png"></p>
+<p>ImageNet 上用的图像尺寸更大，所以也有更多的 Reduction Cell。</p>
+<h2 id="Search-Space"><a href="#Search-Space" class="headerlink" title="Search Space"></a>Search Space</h2><p>每个 Cell 都会接收 2 个 hidden states: $h_{i}$ 和 $h_{i-1}$ 作为输入，这 2 个 hidden states 要么是之前层的 hidden state 输出，要么是输入的原图片，然后给定这两个初始隐藏状态的情况下，控制器 RNN 递归地预测卷积单元的其余结构，控制器对每个 Cell 的预测分为 $B$ 个 block，其中每个 block 具有 5 个预测步骤，这些预测步骤由 5 个不同的 softmax 分类器做出，分别对应于一个 block 中元素的离散选择：<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/controller_model_architecture_in_nasnet.png"></p>
+<p>图中的 $N$ 为 Normal Cell 重复的次数，和初始卷积核个数一样是根据数据集的规模而制定的自由参数。上面的右图就是一个 block 的示例，可以看到每一个 block 的输入为 2 个 hidden states，输出为一个 hidden state，具体算法如下：</p>
+<ol>
+<li>从 $h_{i}$, $h_{i-1}$ 或者从先前 blocks 中已经创建的隐藏状态集里面选择一个 hidden state</li>
+<li>按照第一步再选择一个 hidden state</li>
+<li>对第一步中的 hidden state 选择一个操作</li>
+<li>对第二步中的 hidden state 选择一个操作</li>
+<li>选择一个方法来结合步骤 3 和步骤 4 中的输出，从而得到新的 hidden state</li>
+</ol>
+<p>上面的步骤 3 和步骤 4 中需要选择一个操作用于 hidden states，作者给出了以下的操作：<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/options_in_nasnet.png"></p>
+<p>上面的步骤 5 控制器 RNN 需要选择一个方法来结合 2 个隐藏态，这里设置为 element-wise add 以及 concatenation，最后所有卷积 Cell 中生成但未被使用的隐藏状态在 depth dimension 上进行 concatenate 用于最后 Cell 的输出。</p>
+<p>为了让控制器 RNN 能够同时预测 Normal Cell 以及 Reduction Cell，作者简单地让控制器有 $2 \times 5B$ 个预测，第一个 $5B$ 用于预测 Normal Cell，第 2 个 $5B$ 用于预测 Reduction Cell，在原文的实验中 $B=5$ 取得了好的结果。</p>
+<h2 id="Discovery"><a href="#Discovery" class="headerlink" title="Discovery"></a>Discovery</h2><p>作者除了使用 NAS with RL 中的强化学习方法以外还使用了随机搜索来搜索网络结构，对于随机搜索，不使用 softmax 来决定，而是从均匀分布中来取样从而得到结果。作者发现随机搜索的效果只比强化学习差一点点……作者身为资深炼丹师，对此作出了 2 个说明：</p>
+<ol>
+<li>作者认为 NASNet 所设计的搜索空间的结构合理，因此即便是随机搜索也可以执行得很好</li>
+<li>随机搜索是一个很难战胜的 baseline…(completely fart..)</li>
+</ol>
+<h2 id="Results-1"><a href="#Results-1" class="headerlink" title="Results"></a>Results</h2><p>在 CIFAR-10 搜到的网络结构长这个样子：<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/nasnet.png"><br>在 CIFAR-10 上的结果如下：<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/nasnet_result_on_cifar10.png"><br>然后作者把这个结构放到 ImageNet 上重新训练，得到在 ImageNet 上的结果：<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/nasnet_results_on_imagenet.png"></p>
+<p>作者搜了 3 个精度最高的模型，分别称为 NASNet-A、NASNet-B 和 NASNet-C，上表中的 <code>4 @ 640</code> 表示 Normal Cell 重复的次数 $N=4$ 以及模型倒数第二层的卷积核数目为 640.</p>
+<h2 id="Details"><a href="#Details" class="headerlink" title="Details"></a>Details</h2><h3 id="Scheduled-Drop-Path"><a href="#Scheduled-Drop-Path" class="headerlink" title="Scheduled Drop Path"></a>Scheduled Drop Path</h3><p>在优化类似于 Inception 的多分支结构时，以一定概率随机丢弃掉部分分支是避免过拟合的一种非常有效的策略，例如 DropPath。但是 DropPath 对 NASNet 不是非常有效。在 NASNet 的 Scheduled Drop Path 中，丢弃的概率会随着训练时间的增加线性增加。这么做的动机很好理解：训练的次数越多，模型越容易过拟合，DropPath 的避免过拟合的作用才能发挥的越有效。</p>
+<h3 id="Hyperparameters"><a href="#Hyperparameters" class="headerlink" title="Hyperparameters"></a>Hyperparameters</h3><p>在 NASNet 中，强化学习的搜索空间大大减小，很多超参数已经由算法写死或者人为调整。这里说一下 NASNet 需要人为设定的超参数。</p>
+<ol>
+<li>激活函数统一使用 ReLU，实验结果表明 ELU nonlinearity 效果略优于 ReLU；</li>
+<li>全部使用 Valid 卷积，padding 值由卷积核大小决定；</li>
+<li>Reduction Cell 的 Feature Map 的数量需要乘以 2，Normal Cell 数量不变。初始数量人为设定，一般来说数量越多，计算越慢，效果越好；</li>
+<li>深度可分离卷积在深度卷积和单位卷积中间不使用BN或ReLU</li>
+<li>使用深度可分离卷积时，Search Space 中提到算法执行两次，DW 卷积一次，PW 卷积一次，作者发现这样能改善最终结果。</li>
+<li>所有卷积遵循 ReLU-&gt;卷积-&gt;BN 的计算顺序</li>
+<li>为了保持 Feature Map 的数量的一致性，必要的时候添加 $1 \times 1$ 卷积。</li>
+</ol>
+<h1 id="ENAS"><a href="#ENAS" class="headerlink" title="ENAS"></a>ENAS</h1><p>像上面的那 2 种方法一般人是玩不起的，因为计算量摆在那，为了解决这个问题 ENAS 被提出来了，原文是 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1802.03268">Efficient Neural Architecture Search via Parameter Sharing</a>，ENAS 在一个 1080TI 的显卡上用了快 16 个小时把结构给搜出来了。</p>
+<h2 id="Contribution-2"><a href="#Contribution-2" class="headerlink" title="Contribution"></a>Contribution</h2><ol>
+<li>作者发现 NAS 最大的瓶颈就是为了得到准确度需要将每个子模型都训练到收敛，然后就把之前训练的权重都丢掉了，对于下一个子模型又重新开始训练直到收敛。</li>
+<li>通过强制所有子模型共享权重来避免从头到尾地训练每个子模型从而提高 NAS 的效率。</li>
+</ol>
+<h2 id="Idea"><a href="#Idea" class="headerlink" title="Idea"></a>Idea</h2><p>作者观察到 NAS 最终迭代的所有图都可以看作是一个大图的子图，即我们可以把 NAS 的 Search Space 看成是一个有向无环图(DAG)，直观上来说，ENAS 的 DAG 是 NAS 搜索空间中所有可能的子模型的叠加，其中节点代表 local computations，边缘代表信息流，每个结点的 local computations 有它们自己的参数，这些参数仅在激活特定的计算时才使用，所以 ENAS 的设计允许所有的 child networks 共享参数。</p>
+<h2 id="Designing-Recurrent-Cells"><a href="#Designing-Recurrent-Cells" class="headerlink" title="Designing Recurrent Cells"></a>Designing Recurrent Cells</h2><p>为了设计 Recurrent Cells，使用了包含 $N$ 个结点的 DAG，其中每个结点代表一个 local computations，边缘代表结点之间的信息流。ENAS 的控制器 RNN 决定以下 2 个事情：</p>
+<ol>
+<li>激活DAG 中的哪条边</li>
+<li>在 DAG 的每个结点上进行哪些计算</li>
+</ol>
+<p>相比于把网络的拓扑结构固定为树并仅学习树上每个结点的操作，这种搜索空间允许 ENAS 在 RNN 单元中设计拓扑和操作，因此更加灵活。作者用 4 个结点的 DAG 来举例来说明 ENAS 的机制，假设 $x_t$ 为一个 recurrent Cell 的输入，$h_{t-1}$ 是之前时间步的输出，按照如下方式进行采样：</p>
+<ol>
+<li>对于 node 1：控制器首先采样一个激活函数，在本例子中假设为 tanh，那么这个 recurrent Cell 的 node 1 应该计算 $h_1 = tanh(x_t \cdot W^{(x)} + h_{t-1} \cdot W_{1}^{(h)})$</li>
+<li>对于 node 2：控制器对之前的一个索引和一个激活函数进行采样，假设最终选择 $index=1$ 以及 ReLU，那么 recurrent Cell 的 node 2 应该计算 $h_2 = ReLU(h_1 \cdot W_{2,1}^{(h)})$</li>
+<li>对于 node 3：控制器再次采样一个之前的索引和一个激活函数，假设为 $index=2$ 和  ReLU，那么 node 3 计算 $h_3 =  ReLU(h_2 \cdot W_{3,2}^{(h)})$</li>
+<li>对于 node 4：控制器还是采样一个之前的索引和一个激活函数，假设为 $index=1$ 和  tanh，那么 node 4 计算 $h_4 = tanh(h_1 \cdot W_{4,1}^{(h)})$</li>
+<li>作者将所有稀疏的结果求评价，即将所有未被选择作为其他结点输入的结点的输出求均值，在这个例子中， $index=1$ 和 $index=2$ 都被选中过了，那么这个 recurrent Cell 的输出就为 $(h_3 + h_4) / 2$，因为 node 3 和 node 4 都没有被选中。</li>
+</ol>
+<p>在上述的例子中，对于每个结点对 $j&lt;\ell$，都有一个独立的参数矩阵 $W_{\ell, j}$，通过选择之前的一个索引，控制器就能够决定使用哪个参数矩阵，因此在 ENAS 的策略中所有在同一个 Search Space 的 recurrent Cell 可以使用相同的参数集。</p>
+<p>如果一个 recurrent Cell 有 $N$ 个结点和 4 个激活函数，那么搜索空间就有 $4^{N} \times N!$ 种配置，在论文中 $N=12$，意味着搜索空间中一共约有 $10^{15}$ 个模型。</p>
+<h2 id="Training-ENAS-and-Deriving-Architectures"><a href="#Training-ENAS-and-Deriving-Architectures" class="headerlink" title="Training ENAS and Deriving Architectures"></a>Training ENAS and Deriving Architectures</h2><p>论文中的控制器网络是一个有 100 个 hidden units 的 LSTM，通过 softmax 以自回归的方式对决策进行采样，上一步的输出作为下一步的输入。在 ENAS 中需要学习 2 组参数，分别是控制器 LSTM 的参数 $\theta$ 以及所有 child networks 的共享参数 $\omega$，ENAS 的训练过程由 2 组交替进行的阶段组成：第一个阶段训练 child networks 共享的参数 $\omega$，第二个阶段训练控制器 LSTM 的参数 $\theta$.</p>
+<h3 id="Training-shared-parameters"><a href="#Training-shared-parameters" class="headerlink" title="Training shared parameters"></a>Training shared parameters</h3><p>对于控制器的 policy $\pi(m; \theta)$，使用 SGD 来最小化误差函数 $\mathbb{E}<em>{\mathbf{m} \sim \pi}[\mathcal{L}(\mathbf{m} ; \omega)]$，其中 $\mathcal{L}(\mathbf{m} ; \omega)$ 是标准的交叉熵损失，在一个训练集的 min-batch 上计算得到，这个损失是由模型 $\mathbf{m}$ 的得到的，梯度可以利用蒙特卡洛算法近似求得：<br>$$<br>\nabla</em>{\omega} \mathbb{E}<em>{\mathbf{m} \sim \pi(\mathbf{m} ; \theta)}[\mathcal{L}(\mathbf{m} ; \omega)] \approx \frac{1}{M} \sum</em>{i=1}^{M} \nabla_{\omega} \mathcal{L}\left(\mathbf{m}_{i}, \omega\right)<br>$$</p>
+<p>虽然这个估计相比于标准的 SGD 有更高的方差，但作者发现 $M=1$ 的效果很好，即可以用 $\pi(m; \theta)$ 中采样的任何一个 single 模型的梯度来更新参数 $\omega$</p>
+<h3 id="Training-controller-parameters"><a href="#Training-controller-parameters" class="headerlink" title="Training controller parameters"></a>Training controller parameters</h3><p>这里需要固定 $\omega$，然后最大化期望的 reward：<br>$$<br>\mathbb{E}_{\mathbf{m} \sim \pi(\mathbf{m}: \theta)}[\mathcal{R}(\mathbf{m}, \omega)]<br>$$</p>
+<p>这里和 NAS with RL ，梯度是利用强化学习方法来计算，使用带有移动指数平均的 baseline function 来减少方差。</p>
+<h3 id="Deriving-Architecture"><a href="#Deriving-Architecture" class="headerlink" title="Deriving Architecture"></a>Deriving Architecture</h3><p>首先从已经训练好的 policy $\pi(m; \theta)$ 中采样得到几个模型，对每一个采样得到的模型，计算其在验证集的一个 single mini-batch 的 reward，只选择 reward 最高的模型来从头训练。</p>
+<h2 id="Designing-Convolutional-Networks"><a href="#Designing-Convolutional-Networks" class="headerlink" title="Designing Convolutional Networks"></a>Designing Convolutional Networks</h2><p>在之前的 Designing Recurrent Cells 中，控制器 RNN 需要对每个 decision block 采样 2 个 decisions:</p>
+<ol>
+<li>决定连接之前哪个 node</li>
+<li>决定使用哪种激活函数</li>
+</ol>
+<p>对于卷积模型的搜索空间，控制器 RNN 也需要对每个 decision block 采样 2 个：</p>
+<ol>
+<li>决定连接之前哪个 node</li>
+<li>决定使用哪种计算操作</li>
+</ol>
+<p>决定连接之前哪个 node 是用于实现 skip connection，例如对于第 $k$ 个 layer，已经有 $k-1$ 个采样过的索引了，即对于第 $k$ 个 layer，有 $2^{k-1}$ 种可能，举个例子，在 $k=4$ 的 layer，控制器采样了索引 {1, 3}，所以 layer 1 和 layer 3 的输出在 depth dimension 上 concatenated 后作为 layer 4 的输入。</p>
+<p>对于决定使用哪种计算操作，决定了把这个层是设置为卷积层还是池化层，原文中有 6 种操作，分别是：</p>
+<ul>
+<li>$3 \times 3$ convolution</li>
+<li>$5 \times 5$ convolution</li>
+<li>$3 \times 3$ depthwise-separable convolution</li>
+<li>$5 \times 5$ depthwise-separable convolution</li>
+<li>$3 \times 3$ max-pooling</li>
+<li>$5 \times 5$ avg-pooling</li>
+</ul>
+<p>假设一个网络有 $L$ 层，那么就需要做 $L$ 次采样，所以搜索空间中总的模型数量为 $6^L \times 2^{L(L-1)/2}$，作者实验中 $L=12$，即有 $1.6 \times 10^{29}$ 个可能的网络。</p>
+<h2 id="Designing-Convolutional-Cells"><a href="#Designing-Convolutional-Cells" class="headerlink" title="Designing Convolutional Cells"></a>Designing Convolutional Cells</h2><p>这里和 NASNet 做的事情是一样的，就是希望搜索一个 block，再把 block 进行堆叠从而得到更好的结果。作者使用含有 $B$ 个结点的 DAG 来表示每个 Cell 本地的计算，这里面 node 1 和 node 2 作为 Cell 的输入，对于剩下的 $B-2$ 个 nodes，使用控制器 RNN 来做 2 个决定：</p>
+<ol>
+<li>决定之前的哪 2 个 node 的输出作为当前结点的输入</li>
+<li>决定对当前采样得到的 2 个结点使用哪 2 种操作</li>
+</ol>
+<p>这里的 5 种操作为：</p>
+<ul>
+<li>identity</li>
+<li>$3 \times 3$ depthwise-separable convolution</li>
+<li>$5 \times 5$ depthwise-separable convolution</li>
+<li>$3 \times 3$ max-pooling</li>
+<li>$3 \times 3$ avg-pooling</li>
+</ul>
+<p>作者以 $B=4$ 举了个例子来说明：<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/controller_example_in_designing_conv_Cell.png"></p>
+<ol>
+<li>node 1 和 node 2 都是输入的结点，所以不需要做什么，$h_1$ 和 $h_2$ 就是它们的输出</li>
+<li>从上图中左边的部分，看到控制器对 node 3 进行了采样，采样结果为 node 2，node 2，separable_conv_$5 \times 5$$(h_2)$ 和 $identity$，所以 $h_3 = sep_{conv_{5 \times5}}(h_2) + id(h_2)$</li>
+<li>看到控制器对 node 4 进行了采样，采样结果为 node 3，node 1，avg_pool_3x3 和 sep_conv_3x3，所以 $h_4 = $ avg_pool_3x3($h_3$) + sep_conv_3x3($h_1$)</li>
+<li>$h_4$ 没有被任何一个其他 node 所用到作为输入，所以 $h_4$ 就是 Cell 的输出</li>
+</ol>
+<p>上面说的都是 Normal Cell，对于 Reduction Cell，只需要把 stride 设置为 2 即可。</p>
+<h2 id="Results-2"><a href="#Results-2" class="headerlink" title="Results"></a>Results</h2><p>先看下搜出来的 Normal Cell 和 Reduction Cell<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/enas_results_on_Cells.png"><br>再看下用于分类时直接搜出来整个网络<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/enas_network.png"><br>最后看下结果<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/enas_results.png"></p>
+<h1 id="MnasNet"><a href="#MnasNet" class="headerlink" title="MnasNet"></a>MnasNet</h1><p>把在移动端上的推理时延作为了一个限制条件(也是 reward)，来进行特定条件下的 NAS<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/mnasnet_overview.png"></p>
+<h2 id="Contribution-3"><a href="#Contribution-3" class="headerlink" title="Contribution"></a>Contribution</h2><ol>
+<li>提出了一种多目标任务的神经网络搜索，使得在移动设备上能同时实现精度和推理速度</li>
+<li>提出了一种分解式分层搜索空间，在灵活性和搜索空间大小之间取得了 trade-off</li>
+<li>搜出来的网络在移动端推理速度的限制下，在 ImageNet 分类任务和 COCO 检测下都取得了好结果</li>
+</ol>
+<h2 id="Problem-Formulation"><a href="#Problem-Formulation" class="headerlink" title="Problem Formulation"></a>Problem Formulation</h2><p>作者考虑实际情况，希望能找到一个同时具有高精度和低推理时延的模型，直接上公式：<br>$$\begin{array}{ll}<br>\underset{m}{\operatorname{maximize}} &amp; A C C(m) \<br>\text { subject to } &amp; L A T(m) \leq T<br>\end{array}$$</p>
+<p>$ACC(m)$ 表示模型 $m$ 在给定任务下的准确率，$LAT(m)$ 为特定移动端上的推理时延，$T$ 是目标推理时延，通常的做法是把 $T$ 看成一个硬限制。但这样的做法不能得到多个 Pareto 最优解，Pareto 最优解是指在没有增加推理时延的情况下能达到最佳精度或者在没有减少精度的情况下有最短的推理时延。为了解决这个问题，作者使用一种加权乘积法来近似  Pareto 最优解，这样优化目标就变成了：<br>$$<br>\operatorname{max}_{m} \quad A C C(m) \times\left[\frac{L A T(m)}{T}\right]^{w}<br>$$</p>
+<p>其中 $w$ 是权重系数：<br>$$w=\left{\begin{array}{ll}<br>\alpha, &amp; \text { if } L A T(m) \leq T \<br>\beta, &amp; \text { otherwise }<br>\end{array}\right.$$</p>
+<p>这样<code>其实是把上面的硬约束转化为了一种软约束</code>，$w$ 是由特定的平台所决定的，但作者认为比较好的 $\alpha$ 和 $\beta$ 应该使得  Pareto 最优解在不同的 精度-速度 的 trade-off 中有相近的 reward，例如，作者发现推理时间每增加一倍，准确度大约会提升 5%，那么对于给定的 2 个模型：一个的推理时间为 $l$，准确度为 $a$，另一个模型的推理时间为 $2l$，准确度为 $1.05a$，这 2 个模型的 reward 应该是相近的：<br>$$<br>Reward(M2) = a \cdot (1 + 0.05) \cdot (2l/T)^{\beta} \approx Reward(M1) = a \cdot (l/T)^{\beta}<br>$$</p>
+<p>以上面为例可以解得 $\beta \approx -0.07$，作者在实验中设置为 $\alpha = \beta = -0.07$，作者也做了实验进行了硬约束和软约束的对比：<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/mnasnet_compare_hard_soft_contraist.png"></p>
+<p>图中上半部分为硬约束的目标值，下半部分是软约束的目标值，目标值就是要优化目标 $A C C(m) \times\left[\frac{L A T(m)}{T}\right]^{w}$</p>
+<h2 id="Architecture-Search"><a href="#Architecture-Search" class="headerlink" title="Architecture Search"></a>Architecture Search</h2><p>大部分方法都是只搜索一小部分 Cell，然后把它们给堆叠起来，作者认为这对于实现高精度和低延迟至关重要。所以作者引入了分解式分层搜索空间，将整个模型分为若干个单独的 block，每个 block 分为不同的 layer，每个 block 中的 layer 是一样的，这样做的原理是作者认为需要根据输入和输出的形状来搜索最佳操作以获得更好的 accuracy-latency trade-off。例如，浅层的 CNN 要处理比较大的数据，所以网络的浅层对推理时延的影响要比网络的深层大。搜索空间的结构如下图所示：<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/mnasnet_search_space.png"></p>
+<p>可以看到把模型分成了一系列预定义好的 blocks，逐渐减少分辨率并增大通道数，每个 block 都有若干个 layer，每个 layer 相同，每个 layer 的操作和连接由每个 block 的子搜索空间决定，具体地，每个 block $i$ 的子空间由以下几个选择组成：</p>
+<ol>
+<li>卷积操作($ConvOp$)：regular conv、depthwise conv、 mobile inverted bottleneck conv</li>
+<li>卷积核尺寸($Kernel Size$)：$3 \times 3$、$5 \times 5$</li>
+<li>$SERatio$：0、0.25</li>
+<li>Skip Options：pooling、identity residual、no skip</li>
+<li>每个 block 输出的通道数 $F_i$</li>
+<li>每个 block 的 layer 数目 $N_i$</li>
+</ol>
+<h2 id="Search-Algorithm"><a href="#Search-Algorithm" class="headerlink" title="Search Algorithm"></a>Search Algorithm</h2><p>同样使用强化学习来为多目标优化问题找最优解，这里用强化学习的原因是其 reward 容易自定义，但作者认为其他优化算法也是有效的。具体的说，遵循和 NAS with RL 一样的策略，将搜索空间中的每个 CNN 模型映射到 tokens 列表，这些 tokens 由强化学习基于其参数 $\theta$ 的一系列 action $a_{1:T}$ 决定，最终的目标是最大化期望的 reward：<br>$$<br>J=E_{P\left(a_{1: T} ; \theta\right)}[R(m)]<br>$$</p>
+<p>$m$ 是由一系列 action $a_{1:T}$ 决定的被采样的模型，$R(m)$ 是目标值 $A C C(m) \times\left[\frac{L A T(m)}{T}\right]^{w}$。</p>
+<p>训练过程和 NAS with RL 一样，在每个 step 中，控制器首先根据其 RNN 的 softmax logit 预测义序列的 tokens，从而使用其当前参数 θ 对一批模型进行采样，对于每个被采样的模型 $m$，计算 $ACC(m)$ 和 $LAT(m)$，然后得到 reward value $R(m)$，在每个 step 的最后最大化期望的 reward 从而更新控制器的参数 $\theta$，重复进行直到达到最大 step 或者 $\theta$ 收敛。</p>
+<h2 id="Results-3"><a href="#Results-3" class="headerlink" title="Results"></a>Results</h2><p>先看在 ImageNet 上的结果，MnasNet-A1 是搜索出来的 baseline，MnasNet-A2 和 MnasNet-A3 是在不同的推理时延下用相同方法和参数搜出来的其他模型。<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/mnasnet_results.png"><br>再看目标检测上的结果<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/mnasnet_results_coco.png"></p>
+<p>接下来的消融性验证，之前已经比较过了软约束和硬约束的目标值，作者还比较了软约束和硬约束的搜索结果，当 $\alpha=0, \beta=-1$ 时推理时延被看成是硬约束，所以控制器倾向于采样更快的模型以避免推理时间的惩罚，当 $\alpha= \beta=-0.07$ 时推理时延被看成是软约束，所以如图所示产生的模型在推理时延上有比较大的范围。<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/mnasnet_search_results.png"></p>
+<p>作者认为自己方法好的原因主要在于多目标奖励和新的搜索空间，作者也对此进行了实验，可以看出多目标奖励会减少推理时延也会降低精度，但是新的搜索空间让精度大大增加了。<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/mnasnet_ablation_study.png"></p>
+<p>最后看下搜出来的 baseline —— MnasNet-A1 和搜出来的相关 layers<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/mnasnet_structures_and_layers.png"></p>
+<h1 id="EfficientNet"><a href="#EfficientNet" class="headerlink" title="EfficientNet"></a>EfficientNet</h1><h2 id="Contribution-4"><a href="#Contribution-4" class="headerlink" title="Contribution"></a>Contribution</h2><ol>
+<li>分析了网络三个维度(深度、宽度和分辨率)的缩放对结果的影响</li>
+<li>提出了联合缩放来平衡网络三个维度的缩放</li>
+<li>通过对 MnasNet 搜到的 EfficientNet-B0 进行缩放得到了更快更好的 EfficientNet 系列</li>
+</ol>
+<h2 id="Idea-1"><a href="#Idea-1" class="headerlink" title="Idea"></a>Idea</h2><p>在以往的模型设计中，通常只对深度、宽度和分辨率这 3 个维度中的一个来进行缩放(e.g. ResNet 缩放深度，InceptionNet 缩放宽度)，尽管可以任意缩放两个或三个维度，但是任意缩放需要繁琐的手动调整参数，并且仍然会导致精度和效率的不尽人意。</p>
+<p>作者发现使用一组固定的缩放系数来均匀缩放网络宽度，深度和分辨率，从而使得网络深度、宽度和分辨率的能够保持一个平衡，这对好的结果至关重要。具体的说，如果有 $2^N$ 倍的计算资源，那么就可以简单的把网络的深度、宽度和分辨率分别增加到原来的 $\alpha^N$， $\beta^N$ 和  $\gamma^N$ 倍，其中 $\alpha$、$\beta$ 和 $\gamma$ 是在原来的小模型(e.g. MobileNet)上利用网格搜索得到的常系数，以这种方式加大模型的参数和复杂度，从而得到更好的结果。</p>
+<h2 id="Compound-Model-Scaling"><a href="#Compound-Model-Scaling" class="headerlink" title="Compound Model Scaling"></a>Compound Model Scaling</h2><h3 id="Problem-Formulation-1"><a href="#Problem-Formulation-1" class="headerlink" title="Problem Formulation"></a>Problem Formulation</h3><p>一个卷积层 $i$ 可以被定义成一个公式 $Y_i = \mathcal{F}<em>i (X_i)$，$Y_i$，$X_i$ 分别树输出和输入的 tensor，所以一个卷积网络可以表示为多个卷积层的列表：<br>$$<br>\mathcal{N}=\mathcal{F}_{k} \odot \ldots \odot \mathcal{F}</em>{2} \odot \mathcal{F}<em>{1}\left(X</em>{1}\right)=\odot_{j=1 \ldots k} \mathcal{F}<em>{j}\left(X</em>{1}\right)<br>$$</p>
+<p>在例如 ResNet 的很多网络中都有很多的 Stage，每个 Stage 除了第一个 layer 用于降采样以外，都有着相同的结构，所以一个卷积网络可以表示为下面的形式：<br>$$<br>\mathcal{N}=\bigoplus_{i=1 \ldots s} \mathcal{F}<em>{i}^{L</em>{i}}\left(X_{\left\langle H_{i}, W_{i}, C_{i}\right\rangle}\right)<br>$$</p>
+<p>其中 $\mathcal{F}<em>{i}^{L</em>{i}}$ 表示在第 $i$ 个 stage 中，卷积层 $\mathcal{F}<em>{i}$ 重复 $L_i$ 次，$\left\langle H_{i}, W</em>{i}, C_{i}\right\rangle$ 表示输入 tensor 的 shape，通常的卷积网络设计是为了得到更好的 $\mathcal{F}<em>{i}$，而本文却是希望固定 $\mathcal{F}</em>{i}$，通过缩放网络的深度 $L_i$，宽度 $C_i$ 和分辨率 $(H_i, W_i)$ 来得到好的网络结构。为了减少搜索空间，作者限制所有 layers 都必须以恒定的比率进行均匀缩放，因此整个问题就可以被定义为在约束条件下的最优化问题：<code>公式(2)</code><br>$$\begin{array}{ll}<br>\max <em>{d, w, r} &amp; \operatorname{Accuracy}(\mathcal{N}(d, w, r)) \<br>\text {s.t.} &amp; \mathcal{N}(d, w, r)=\odot</em>{i=1 \ldots s} \hat{\mathcal{F}}<em>{i}^{d \cdot \hat{L}</em>{i}}\left(X_{\left\langle r \cdot \hat{H}<em>{i}, r \cdot \hat{W}</em>{i}, w \cdot \hat{C}<em>{i}\right\rangle}\right) \<br>&amp; \text { Memory }(\mathcal{N}) \leq  target</em>{memory}  \<br>&amp; \text {FLOPS}(\mathcal{N}) \leq  target_{flops}<br>\end{array}$$</p>
+<p>$d, w, r$ 是缩放网络深度，宽度和分辨率的系数，$\hat{\mathcal{F}}<em>{i}, \hat{L}</em>{i}, \hat{H}<em>{i}, \hat{W}</em>{i}, \hat{C}_{i}$ 是预定义好的参数。</p>
+<h3 id="Scaling-Dimensions"><a href="#Scaling-Dimensions" class="headerlink" title="Scaling Dimensions"></a>Scaling Dimensions</h3><p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/efficientnet_model_scaling.png"></p>
+<p>作者基于 2 个观察到的现象进行模型的缩放：</p>
+<ol>
+<li>增大网络的深度、宽度和分辨率中的任何一个都能够提升准确率，但是准确率的提升速度会随着模型的增大而降低。</li>
+<li>作者观察到不同的缩放维度都不是独立的，所以为了得到更好的准确度和效率，缩放时必须平衡好所有的网络维度。</li>
+</ol>
+<ul>
+<li>关于现象 1 的举例：这个应该很明显了，网络越深越不好训练，虽然 ResNet 很大程度上解决了这个问题，但这个问题依然是存在的。</li>
+<li>关于现象 2 的举例：简单的例子就是对于大分辨率的图像应该用更深的网络来得到更大的感受野，得到更好的特征，也可以用更宽的网络来得到更加细粒度的特征。</li>
+</ul>
+<p>作者也对现象 2 做了实验：<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/efficientnet_results_scaling_parameter.png"></p>
+<p>得到的结论是如果只对宽度 $w$ 进行缩放，而不缩放深度和分辨率的话，精度会很快达到饱和(对应上图中的 $d=1.0, r=1.0$)</p>
+<h3 id="Compound-Scaling-Methods"><a href="#Compound-Scaling-Methods" class="headerlink" title="Compound Scaling Methods"></a>Compound Scaling Methods</h3><p>作者使用一个复合系数 $\phi$ 来对网络深度、宽度和分辨率进行均匀缩放：<code>公式(3)</code><br>$$<br>\begin{array}{ll}<br>depth: d=\alpha^{\phi} \<br>width: w=\beta^{\phi} \<br>resolution: r=\gamma^{\phi} \<br>s.t. \alpha \cdot \beta^{2} \cdot \gamma^{2} \approx 2 \<br>\alpha \geq 1, \beta \geq 1, \gamma \geq 1 \<br>\end{array}<br>$$</p>
+<p>其中 $\alpha, \beta, \gamma$ 是由一个小的 grid search 决定的常量，这里需要注意的是，一个标准卷积的 FLOPs 和 $d, w^2, r^2$ 成正比，即如果网络的深度加倍，那么 FLOPs 会加倍，而网络的宽度或者分辨率的加倍会导致 FLOPs 增加四倍，这也是上式中 $s.t. \alpha \cdot \beta^{2} \cdot \gamma^{2} \approx 2$ 的由来。这里的 2 是作者设置的，希望对于新的计算资源 $\phi$，总的 FLOPs 会大约增加 $2^{\phi} 。$</p>
+<h2 id="EfficientNet-Architecture"><a href="#EfficientNet-Architecture" class="headerlink" title="EfficientNet Architecture"></a>EfficientNet Architecture</h2><h3 id="EfficientNet-B0"><a href="#EfficientNet-B0" class="headerlink" title="EfficientNet-B0"></a>EfficientNet-B0</h3><p>上面已经说到了模型三个维度的缩放并不影响每一卷积层的表现方式 $\hat{\mathcal{F}}_i$，所以有一个好的 baseline 是很重要的事情，只有 baseline 好了，那么基于 baseline 并经过 scaling 之后的模型才能有好的表现。然后作者使用 MnasNet 一样的办法，在把 accuracy 和 FLOPs 都作为优化目标的情况下来搜索网络结构，搜索空间也和 MnasNet 一样，不同的是这里的优化目标是 FLOPs 而不是延迟，因为并没有在任何特定的硬件上测试。作者把这样搜出来的网络作为 baseline 进行 scaling，并且称作 Efficient-B0.<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/efficient-b0.png"></p>
+<h3 id="EfficientNet-B1-to-EfficientNet-B7"><a href="#EfficientNet-B1-to-EfficientNet-B7" class="headerlink" title="EfficientNet-B1 to EfficientNet-B7"></a>EfficientNet-B1 to EfficientNet-B7</h3><p>有了 EfficientNet-B0 作为 baseline，就开始使用  Compound Scaling Methods 来进行缩放，缩放步骤如下：</p>
+<ol>
+<li>首先固定 $\phi=1$，在上面提到的公式(2)和公式(3)上做一个小的 grid search，对于 EfficientNet-B0  作者得到的最佳值是 $\alpha = 1.2, \beta = 1.1, \gamma =1.15$</li>
+<li>公式(3)上固定 $\alpha, \beta, \gamma$ 的值，放大 $\phi$ 的值，最终得到 EfficientNet-B1 to EfficientNet-B7。</li>
+</ol>
+<p>作者还提了一嘴，直接在大模型上做网格搜索求得 $\alpha, \beta, \gamma$ 可能会得到更好的结果，但也会导致更大的计算量，所以这里只是在小网络(Efficient-B0)上搜索 $\alpha, \beta, \gamma$，然后进行缩放。</p>
+<h2 id="Results-4"><a href="#Results-4" class="headerlink" title="Results"></a>Results</h2><p>先看来最终的结果，不同的 Efficient 在 ImageNet 上的精度：<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/efficientnet_results.png"></p>
+<p>作者也对比了只缩放网络深度、宽度或者分辨率中一种的结果，可以看出联合缩放的效果更好。<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/efficientnet_results_compound_scaling.png"></p>
+<p>作者也做实验并讨论了为什么联合缩放会更有效，作者给出了不同缩放方法的类激活图(Class Activation Map)，可以看出使用联合缩放能够让模型关注具有更多物体细节的区域，而单独对某个维度进行缩放会导致模型缺失物体细节或者无法捕获图像中的所有物体。<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/efficientnet_results_cam.png"></p>
+<p>最后来张广为流传的图吧，FLOPs vs. ImageNet Accuracy<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/efficientnet_results_image.png"></p>
+<h1 id="Darts"><a href="#Darts" class="headerlink" title="Darts"></a>Darts</h1><h2 id="Contribution-5"><a href="#Contribution-5" class="headerlink" title="Contribution"></a>Contribution</h2><ol>
+<li>提出了基于 bilevel 优化的可微分 NAS算法</li>
+<li>可微分 NAS 显著地提升了 NAS 的效率</li>
+<li>作者的实验表明，Darts 搜出来的网络不仅精度高，也能够很好地迁移到其他数据集上(实验只看到了分类有比较好的迁移性)</li>
+</ol>
+<h2 id="Idea-2"><a href="#Idea-2" class="headerlink" title="Idea"></a>Idea</h2><p>上面提到的所有算法的搜索空间都是离散且不可微的，DARTS 通过把搜索空间连续松弛化，这样就可以通过梯度下降来搜索网络结构。</p>
+<h2 id="Search-Space-1"><a href="#Search-Space-1" class="headerlink" title="Search Space"></a>Search Space</h2><p>和 NASNet 一样先搜索 Cell，然后堆叠起来作为最终的网络结构，这里的搜索空间和 ENAS 差不多每个 Cell 可以看作是一个有着 $N$ 个结点的 DAG 图，每个结点 $x^{(i)}$ 是一种潜在的表示(可以理解为卷积网络的特征图)，每条边和能够改变结点 $x^{(i)}$ 的操作 $o^{(i, j)}$ 相关联。</p>
+<p>假设每个 Cell 有 2 个输入结点和 1 个输出结点，那么对于 convolutional Cells 而言，输入结点就是前面 2 层 Cell 的输出，这里和 NASNet 的定义是一样的，对于 recurrent Cells 而言，每个 Cell 的输出是由 Cell 中所有的中间结点经过一个 reduction operation 得到的(e.g. concatenation)，每个中间结点 $x^{(j)}$ 都是根据其所有的前面得到的结点进行计算得到：<br>$$<br>x^{(j)}=\sum_{i&lt;j} o^{(i, j)}\left(x^{(i)}\right)<br>$$</p>
+<p>这里也有个 zero operation，表明 2 个结点之间缺乏连接(没有任何的 operation)，学习每个 Cell 本质上就是学习 DAG 中每条边上的操作 operation。<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/darts_overview.png"></p>
+<p>对照着解释下上面的图：</p>
+<ul>
+<li>(a)：定义一个 Cell，一个 Cell 可以表示为 DAG 的形式，这个例子中是 4 个结点，每条边代表了一种操作(e.g. $3 \times 3 \quad conv$)，初始化的时候为 unknown</li>
+<li>(b)：通过在每条边上执行混合候选操作来对搜索空间进行连续松弛化(以 Softmax 权值叠加的方式)，把每条边都看成是子操作。</li>
+<li>(c)：通过解决双层优化问题（bilevel optimization problem）来对混合概率和网络权重进行联合优化，上图中边的粗细可以看成是每个子操作的概率</li>
+<li>(d)：从学习到的混合概率中得出最后的网络结构，就是选择概率最大子操作(最粗的边)</li>
+</ul>
+<p>不难看出重点就在于如何解决 (b) 和 (c)，接下来要说的就是如何解决这 2 个问题。</p>
+<h2 id="Continuous-Relaxation-and-Optimization"><a href="#Continuous-Relaxation-and-Optimization" class="headerlink" title="Continuous Relaxation and Optimization"></a>Continuous Relaxation and Optimization</h2><p>设 $\mathcal{O}$ 是可选的操作集合(e.g. convolution，max pooling，zero)，其中每个操作代表用于结点 $x^{(i)}$ 上的函数 $o(\cdot)$，为了让搜索空间变得连续，作者将特定操作的分类选择放宽到了一个 softmax 上，这个 softmax 包含了所有可能的操作：<br>$$<br>\bar{o}^{(i, j)}(x)=\sum_{o \in \mathcal{O}} \frac{\exp \left(\alpha_{o}^{(i, j)}\right)}{\sum_{o^{\prime} \in \mathcal{O}} \exp \left(\alpha_{o^{\prime}}^{(i, j)}\right)} o(x)<br>$$</p>
+<p>每对结点 $(i,j)$ 的混合权重是一个维度为 $|\mathcal{O}|$ 的向量 $\alpha^{(i,j)}$，这样就把整个结构的搜索变成了学习一组连续变量 $\alpha=\left{\alpha^{(i, j)}\right}$，在搜索的最后可以通过把每个混合操作 $\bar{o}^{(i, j)}$ 替换为可能性最大的操作 ($o^{(i, j)}=\operatorname{argmax}<em>{o \in \mathcal{O}} \alpha</em>{o}^{(i, j)}$) 来得到一个离散的结构，这里的 $\alpha$ 可以看成是网络结构的 encoding，其实也就是和 ENAS 一样，是 2 个结点之间的共享权重。</p>
+<p>在对搜索空间进行松弛化以后，接下来在所有的混合操作中共同学习网络架构 $\alpha$ 和权重 $w$，和其他方法不同的是，这是使用梯度下降来优化 validation loss，而不是用 RL 或者进化算法来最大化期望的 reward 或者 fitness</p>
+<p>用 $ \mathcal{L}<em>{train}$ 和 $\mathcal{L}</em>{test}$ 分别表示训练误差和验证误差，均由网络结构 $\alpha$ 和网络权重 $w$ 决定，那么结构搜索的目标是找到一个网络结构 $\alpha^{<em>}$ 使得验证误差 $\mathcal{L}_{val}(w^{</em>}, \alpha^{<em>})$ 最小，通过最小化训练损失 $w^{</em>}=\operatorname{argmin}<em>{w} \mathcal{L}</em>{t r a i n}\left(w, \alpha^{<em>}\right)$ 来得到和网络结构相关的权重 $w^{</em>}$。这其实是一个双层的优化问题，其中 $\alpha$ 是上层变量，$w$ 是下层变量：<br>$$\begin{array}{ll}<br>\min <em>{\alpha} &amp; \mathcal{L}</em>{v a l}\left(w^{<em>}(\alpha), \alpha\right) \<br>\text { s.t. } &amp; w^{</em>}(\alpha)=\operatorname{argmin}<em>{w} \mathcal{L}</em>{\text {train}}(w, \alpha)<br>\end{array}$$</p>
+<p>DARTS 的算法可以总结如下：<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/darts_algo.png"></p>
+<p>其实核心思想到这里就结束了，即如何把搜索空间变成连续且松散的，如何把 loss 作为优化目标。后面的部分是详细介绍了梯度下降的应用以及网络结构的搜索细节。下面的公式我其实也没看懂…但是还是能把论文翻译一下的…(大哭)</p>
+<h2 id="Approximate-Architecture-Gradient"><a href="#Approximate-Architecture-Gradient" class="headerlink" title="Approximate Architecture Gradient"></a>Approximate Architecture Gradient</h2><p>由于损失的准确梯度很难得到，所以作者提出了一种近似方案：<br>$$\begin{aligned}<br>&amp; \nabla_{\alpha} \mathcal{L}<em>{v a l}\left(w^{*}(\alpha), \alpha\right) \<br>\approx &amp; \nabla</em>{\alpha} \mathcal{L}<em>{v a l}\left(w-\xi \nabla</em>{w} \mathcal{L}_{t r a i n}(w, \alpha), \alpha\right)<br>\end{aligned}$$</p>
+<p>其中 $w$ 是算法保持的当前权重，$\xi$ 是学习率，这个想法是在训练中仅使用一个 step 就可以对 $w$ 进行调整来近似估计 $w^{*}(\alpha)$，而不是通过训练直到收敛来解决优化问题，值得注意的是当 $w$ 是一个局部最优时，上式可以简化为 $\nabla_{\alpha} \mathcal{L}<em>{v a l}(w, \alpha)$，此时 $\nabla</em>{w} \mathcal{L}_{train}(w, \alpha) = 0$。</p>
+<p>把求导的链式准则应用到上面的近似梯度上可以得到<code>公式(7)</code>：<br>$$\nabla_{\alpha} \mathcal{L}<em>{v a l}\left(w^{\prime}, \alpha\right)-\xi \nabla</em>{\alpha, w}^{2} \mathcal{L}<em>{t r a i n}(w, \alpha) \nabla</em>{w^{\prime}} \mathcal{L}_{v a l}\left(w^{\prime}, \alpha\right)$$</p>
+<p>其中 $w’ = w - \xi \nabla_{w} \mathcal{L}<em>{train}(w, \alpha)$ 表明了每一个 step 模型前向传播的权重，上面的表达式在第二项中包含了计算代价昂贵的矩阵向量乘积，作者使用有限差分近似来降低复杂度，令 $\epsilon$ 为一个比较小的标量，令 $w^{\pm}=w \pm \epsilon \nabla</em>{w^{\prime}} \mathcal{L}<em>{v a l}\left(w^{\prime}, \alpha\right)$，那么就有：<br>$$\nabla</em>{\alpha, w}^{2} \mathcal{L}<em>{\text {train}}(w, \alpha) \nabla</em>{w^{\prime}} \mathcal{L}<em>{\text {val}}\left(w^{\prime}, \alpha\right) \approx \frac{\nabla</em>{\alpha} \mathcal{L}<em>{\text {train}}\left(w^{+}, \alpha\right)-\nabla</em>{\alpha} \mathcal{L}_{\text {train}}\left(w^{-}, \alpha\right)}{2 \epsilon}$$</p>
+<p>对有限差分进行评估仅需要对权重 $w$ 进行 2 次前向遍历和对网络结构的 encoding $\alpha$ 进行 2 次反向传播，使用有限差分后算法的时间复杂度就从 $O(|\alpha| \cdot |w|)$ 降低为了  $O(|\alpha| + |w|)$</p>
+<p>当 $\xi = 0$ 时，公式(7)中的二阶导数就会消失，在这种情况下，梯度为 $\nabla_{\alpha} \mathcal{L}_{val}(w, \alpha)$，这是通过假设当前的 $w = w^*(\alpha)$，并利用启发式算法得到的。这会导致一些加速，但会降低性能，在后面的部分中将 $\xi=0$ 称为一阶逼近，将 $\xi &gt; 0$ 的梯度公式称为二阶逼近。</p>
+<h2 id="Deriving-Discrete-Architectures"><a href="#Deriving-Discrete-Architectures" class="headerlink" title="Deriving Discrete Architectures"></a>Deriving Discrete Architectures</h2><p>为了得到离散结构中的每个结点，作者保留了从之前所有结点收集到的 non-zero 操作中强度最高的 Top-K 个操作，每个操作来自不同的结点，每个操作的强度由 $\frac{\exp \left(\alpha_{o}^{(i, j)}\right)}{\sum_{o^{\prime} \in \mathcal{O}} \exp \left(\alpha_{o^{\prime}}^{(i, j)}\right)}$ 定义，这里直接排除了 zero operation，原因有 2 个：</p>
+<ol>
+<li>需要每个结点正好有 k 个非 0 输入边，以方便和现有方法进行比较</li>
+<li>zero operation 的强度是不确定的，因为增加 zero operation 仅会影响所得结点的表示规模，在 Batch Norm 的影响下不会影响最终的分类结果。</li>
+</ol>
+<h2 id="Experiment-Details"><a href="#Experiment-Details" class="headerlink" title="Experiment Details"></a>Experiment Details</h2><ol>
+<li>Create可以使用的 operations 包括：</li>
+</ol>
+<ul>
+<li>$3 \times 3$ 和 $5 \times 5$ 的可分离卷积</li>
+<li>$3 \times 3$ 和 $5 \times 5$ 的 dilated 可分离卷积</li>
+<li>$3 \times 3$ 的最大池化和平均池化</li>
+<li>identity</li>
+<li>zero</li>
+</ul>
+<ol start="2">
+<li>所有操作的 stride = 1，并且对特征图进行填充以保证空间分辨率，对所有的卷积操作使用 ReLU-Conv-BN 的顺序，每个可分离卷积都总是使用 2 次。</li>
+<li>每个 Cell 由 7 个结点组成，其中输出结点被定义为所有中间结点(不包括中间结点)在深度这个维度上的 concatenation。第 $k$ 个 Cell 的第一个结点和第二个结点分别为第 $k-2$ 和第 $k-1$ 个 Cell 的输出</li>
+<li>位于网络深度 $1/3$ 和 $2/3$ 处的 Cell 为 reduction Cell(stride =2 )，所以网络结构可以被编码为权重向量 $\alpha_{normal}$ 和 $\alpha_{reduction}$，分别被 norm Cells 和 reduction Cells 贡献。</li>
+</ol>
+<h2 id="Results-5"><a href="#Results-5" class="headerlink" title="Results"></a>Results</h2><p>最先给出的是 DARTS 在CIFAR-10 和 Penn Treebank 上的搜索过程<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/darts_search_progress.png"></p>
+<p>看下 DARTS 搜出来的 norm Cell 和 reduction Cell<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/ndarts_norm_and_reduction_cell.png"></p>
+<p>然后是在 CIFAR-10 上的结果<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/darts_results_cifar10.png"></p>
+<p>然后把网络结构移到 ImageNet 数据集上训练得到结果<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/darts_results_on_imagenet.png"></p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">Ming Li</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://coderming.cn/2020/07/20/NAS/">https://coderming.cn/2020/07/20/NAS/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/NAS/">NAS</a></div><div class="post_share"><div class="social-share" data-image="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/avatar.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> Donate<div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://limingcv.coding.net/p/images/d/images/git/raw/master/reward/wechat.png" target="_blank"><img class="post-qr-code-img" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/reward/wechat.png" alt="WeChat"/></a><div class="post-qr-code-desc">WeChat</div></li><li class="reward-item"><a href="https://qr.alipay.com/fkx12431y6k0soy7vokzi19" target="_blank"><img class="post-qr-code-img" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/reward/alipay.jpg" alt="AliPay"/></a><div class="post-qr-code-desc">AliPay</div></li></ul></div></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/08/04/NAS-Survey/"><img class="prev-cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/08/NAS-Survey/nas_review.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">Network Architecture Search Survey</div></div></a></div><div class="next-post pull-right"><a href="/2020/06/20/Anchor-Free-Object-Detection/"><img class="next-cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/06/Anchor-Free-Object-Detection/cover.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">Anchor Free Object Detection</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2020/08/27/Object-Detection-with-NAS/" title="Object Detection with NAS"><img class="cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/08/Object-Detection-with-NAS/detnas_pipeline.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-08-27</div><div class="title">Object Detection with NAS</div></div></a></div><div><a href="/2020/08/04/NAS-Survey/" title="Network Architecture Search Survey"><img class="cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/08/NAS-Survey/nas_review.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-08-04</div><div class="title">Network Architecture Search Survey</div></div></a></div></div></div></article></main><footer id="footer" style="background-image: url(https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/07/NAS/avatar.png)"><div id="footer-wrap"><div class="copyright">&copy;2020 By Ming Li</div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">Local search</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>Powered by</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a></div></div></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div></div></body></html>

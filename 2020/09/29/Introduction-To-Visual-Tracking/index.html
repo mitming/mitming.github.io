@@ -1,0 +1,518 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Introduction to Visual Tracking | Ming</title><meta name="keywords" content="Object Detection,Tracking"><meta name="author" content="Ming Li"><meta name="copyright" content="Ming Li"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="Basic Knowledge模型主要分为2大类: 生成和判别, 目前最火的是判别方法,  即 tracking-by-detection.  生成类方法在当前帧对目标区域建模，下一帧寻找与模型最相似的区域就是预测位置，比较著名的有卡尔曼滤波，粒子滤波，mean-shift 等。举个例子，从当前帧知道了目标区域80%是红色，20%是绿色，然后在下一帧，搜索算法就像无头苍蝇，到处去找最符合这个颜色比">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Introduction to Visual Tracking">
+<meta property="og:url" content="https://coderming.cn/2020/09/29/Introduction-To-Visual-Tracking/index.html">
+<meta property="og:site_name" content="Ming">
+<meta property="og:description" content="Basic Knowledge模型主要分为2大类: 生成和判别, 目前最火的是判别方法,  即 tracking-by-detection.  生成类方法在当前帧对目标区域建模，下一帧寻找与模型最相似的区域就是预测位置，比较著名的有卡尔曼滤波，粒子滤波，mean-shift 等。举个例子，从当前帧知道了目标区域80%是红色，20%是绿色，然后在下一帧，搜索算法就像无头苍蝇，到处去找最符合这个颜色比">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/avatar.jpg">
+<meta property="article:published_time" content="2020-09-29T11:47:57.000Z">
+<meta property="article:modified_time" content="2020-10-02T09:24:24.327Z">
+<meta property="article:author" content="Ming Li">
+<meta property="article:tag" content="Object Detection">
+<meta property="article:tag" content="Tracking">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/avatar.jpg"><link rel="shortcut icon" href="/img/avatar.jpg"><link rel="canonical" href="https://coderming.cn/2020/09/29/Introduction-To-Visual-Tracking/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  hexoversion: '5.2.0',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: true,
+  postUpdate: '2020-10-02 17:24:24'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {
+  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }
+})()</script><meta name="generator" content="Hexo 5.2.0"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">Articles</div><div class="length_num">18</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">Tags</div><div class="length_num">14</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">Categories</div><div class="length_num">7</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/images/"><i class="fa-fw fas fa-images"></i><span> Images</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div></div></div></div><div id="body-wrap"><div id="web_bg"></div><div id="sidebar"><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Basic-Knowledge"><span class="toc-number">1.</span> <span class="toc-text">Basic Knowledge</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%91%E7%8E%B0"><span class="toc-number">2.</span> <span class="toc-text">发现</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A8%A1%E5%9E%8B%E5%88%86%E7%B1%BB"><span class="toc-number">3.</span> <span class="toc-text">模型分类</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8C%89%E7%BD%91%E7%BB%9C%E7%BB%93%E6%9E%84%E5%88%86%E7%B1%BB"><span class="toc-number">3.1.</span> <span class="toc-text">按网络结构分类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CNN"><span class="toc-number">3.1.1.</span> <span class="toc-text">CNN</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BA%E4%BA%86%E5%BE%97%E5%88%B0%E6%9B%B4%E5%A5%BD%E7%9A%84%E7%89%B9%E5%BE%81"><span class="toc-number">3.1.1.1.</span> <span class="toc-text">为了得到更好的特征</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B9%B3%E8%A1%A1%E8%AE%AD%E7%BB%83%E6%95%B0%E6%8D%AE"><span class="toc-number">3.1.1.2.</span> <span class="toc-text">平衡训练数据</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%A1%E7%AE%97%E5%A4%8D%E6%9D%82%E5%BA%A6%E9%97%AE%E9%A2%98"><span class="toc-number">3.1.1.3.</span> <span class="toc-text">计算复杂度问题</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SNN"><span class="toc-number">3.1.2.</span> <span class="toc-text">SNN</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BA%E4%BA%86%E5%BE%97%E5%88%B0%E5%88%A4%E5%88%AB%E6%80%A7%E7%9A%84%E7%89%B9%E5%BE%81"><span class="toc-number">3.1.2.1.</span> <span class="toc-text">为了得到判别性的特征</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%80%82%E5%BA%94%E7%9B%AE%E6%A0%87%E5%A4%96%E8%A7%82%E5%8F%98%E6%8D%A2"><span class="toc-number">3.1.2.2.</span> <span class="toc-text">适应目标外观变换</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B9%B3%E8%A1%A1%E8%AE%AD%E7%BB%83%E6%95%B0%E6%8D%AE-1"><span class="toc-number">3.1.2.3.</span> <span class="toc-text">平衡训练数据</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RNN"><span class="toc-number">3.1.3.</span> <span class="toc-text">RNN</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#GAN"><span class="toc-number">3.1.4.</span> <span class="toc-text">GAN</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Custom-Networks"><span class="toc-number">3.1.5.</span> <span class="toc-text">Custom Networks</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%A1%E7%AE%97%E5%A4%8D%E6%9D%82%E5%BA%A6%E9%97%AE%E9%A2%98-1"><span class="toc-number">3.1.5.1.</span> <span class="toc-text">计算复杂度问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A8%A1%E5%9E%8B%E6%9B%B4%E6%96%B0"><span class="toc-number">3.1.5.2.</span> <span class="toc-text">模型更新</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%97%E9%99%90%E7%9A%84%E8%AE%AD%E7%BB%83%E6%95%B0%E6%8D%AE"><span class="toc-number">3.1.5.3.</span> <span class="toc-text">受限的训练数据</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%90%9C%E7%B4%A2%E7%AD%96%E7%95%A5"><span class="toc-number">3.1.5.4.</span> <span class="toc-text">搜索策略</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8D%95%E8%8E%B7%E9%A2%9D%E5%A4%96%E4%BF%A1%E6%81%AF"><span class="toc-number">3.1.5.5.</span> <span class="toc-text">捕获额外信息</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%86%B3%E7%AD%96"><span class="toc-number">3.1.5.6.</span> <span class="toc-text">决策</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8C%89%E7%BD%91%E7%BB%9C%E7%94%A8%E9%80%94%E5%88%86"><span class="toc-number">3.2.</span> <span class="toc-text">按网络用途分</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B"><span class="toc-number">3.2.1.</span> <span class="toc-text">使用预训练模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E7%8E%B0%E6%9C%89%E7%9A%84%E7%89%B9%E5%BE%81"><span class="toc-number">3.2.2.</span> <span class="toc-text">使用现有的特征</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8C%89%E8%AE%AD%E7%BB%83%E6%96%B9%E5%BC%8F%E5%88%86%E7%B1%BB"><span class="toc-number">3.3.</span> <span class="toc-text">按训练方式分类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#offline-training"><span class="toc-number">3.3.1.</span> <span class="toc-text">offline training</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#online-training"><span class="toc-number">3.3.2.</span> <span class="toc-text">online training</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#both-online-training-and-offline-training"><span class="toc-number">3.3.3.</span> <span class="toc-text">both online training and offline training</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8C%89%E7%85%A7%E7%9B%AE%E6%A0%87%E5%87%BD%E6%95%B0%E5%88%86"><span class="toc-number">3.4.</span> <span class="toc-text">按照目标函数分</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8C%89%E6%A8%A1%E5%9E%8B%E8%BE%93%E5%87%BA%E5%88%86"><span class="toc-number">3.5.</span> <span class="toc-text">按模型输出分</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E6%BB%A4%E6%B3%A2"><span class="toc-number">3.6.</span> <span class="toc-text">相关滤波</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Benchmark-%E6%95%B0%E6%8D%AE%E9%9B%86%E5%92%8C%E8%AF%84%E4%BB%B7%E6%8C%87%E6%A0%87"><span class="toc-number">4.</span> <span class="toc-text">Benchmark 数据集和评价指标</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E9%9B%86"><span class="toc-number">4.1.</span> <span class="toc-text">数据集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%84%E4%BB%B7%E6%8C%87%E6%A0%87"><span class="toc-number">4.2.</span> <span class="toc-text">评价指标</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%A7%E8%83%BD%E5%9B%BE"><span class="toc-number">4.3.</span> <span class="toc-text">性能图</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C%E7%BB%93%E6%9E%9C"><span class="toc-number">5.</span> <span class="toc-text">实验结果</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%BB%E7%BB%93%E5%92%8C%E8%AE%A8%E8%AE%BA"><span class="toc-number">6.</span> <span class="toc-text">总结和讨论</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#CVPR%E2%80%9920"><span class="toc-number">7.</span> <span class="toc-text">CVPR’20</span></a></li></ol></div></div></div><header class="post-bg" id="page-header" style="background-image: url(https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/avatar.jpg)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Ming</a></span><span id="menus"><div id="search_button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> Search</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/images/"><i class="fa-fw fas fa-images"></i><span> Images</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div></div><span class="close" id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">Introduction to Visual Tracking</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2020-09-29T11:47:57.000Z" title="Created 2020-09-29 19:47:57">2020-09-29</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2020-10-02T09:24:24.327Z" title="Updated 2020-10-02 17:24:24">2020-10-02</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Tracking/">Tracking</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word count:</span><span class="word-count">6.2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading time:</span><span>20min</span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h1 id="Basic-Knowledge"><a href="#Basic-Knowledge" class="headerlink" title="Basic Knowledge"></a>Basic Knowledge</h1><p>模型主要分为2大类: 生成和判别, 目前最火的是判别方法,  即 tracking-by-detection.</p>
+<ol>
+<li><p>生成类方法<br>在当前帧对目标区域建模，下一帧寻找与模型最相似的区域就是预测位置，比较著名的有卡尔曼滤波，粒子滤波，mean-shift 等。举个例子，从当前帧知道了目标区域80%是红色，20%是绿色，然后在下一帧，搜索算法就像无头苍蝇，到处去找最符合这个颜色比例的区域</p>
+</li>
+<li><p>判别类方法<br>CV中的经典套路图像特征+机器学习， 当前帧以目标区域为正样本，背景区域为负样本，机器学习方法训练分类器，下一帧用训练好的分类器找最优区域</p>
+</li>
+</ol>
+<p>与生成类方法最大的区别，是分类器训练过程中用到了背景信息，这样分类器就能专注区分前景和背景，所以判别类方法普遍都比生成类好。</p>
+<p>以下内容主要是对文章 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1912.00535">Deep Learning for Visual Tracking: A Comprehensive Survey</a> 进行翻译和自行整理.</p>
+<h1 id="发现"><a href="#发现" class="headerlink" title="发现"></a>发现</h1><ol>
+<li>SNN-based 方法最受欢迎, 因为能很好满足速度和精度上的 trade-off</li>
+<li>最近的方法尝试用 RL 和 GAN 来 refine 决策以及缓解数据不足的问题</li>
+<li>offline 的端到端学习适当地适应了预训练的特征</li>
+<li>虽然 online 训练增加了计算复杂度导致大多数方法无法实时, 但这也帮助跟踪器得到了很好的 appearance 信息, 剔除了部分视觉干扰并提升了模型的精度和鲁棒性</li>
+<li>同时使用 online training 和 offline training 能得到更鲁棒的跟踪器</li>
+<li>使用更宽或者更深的 backbone 可以提高跟踪器区分目标和背景的能力</li>
+<li>目前最好的跟踪器同时使用分类和回归的目标函数, 不但预测 target proposals 也预测 tightest bounding box</li>
+<li>多种特征的融合能提高模型鲁棒性</li>
+<li>一些互补特征的融合能提点+提高鲁棒性</li>
+<li>目前最大的挑战还是来自遮挡, 消失及快速移动, 如果有相似语义的目标可能导致漂移的问题</li>
+</ol>
+<h1 id="模型分类"><a href="#模型分类" class="headerlink" title="模型分类"></a>模型分类</h1><h2 id="按网络结构分类"><a href="#按网络结构分类" class="headerlink" title="按网络结构分类"></a>按网络结构分类</h2><h3 id="CNN"><a href="#CNN" class="headerlink" title="CNN"></a>CNN</h3><h4 id="为了得到更好的特征"><a href="#为了得到更好的特征" class="headerlink" title="为了得到更好的特征"></a>为了得到更好的特征</h4><ol>
+<li>在大数据集上做 offline training</li>
+<li>设计更加特殊的网络结构, 而不是使用预训练的模型</li>
+<li>构造多目标模型来捕获目标外观的多样性</li>
+<li>合并时序信息和空间信息来增强泛化能力</li>
+<li>用特征融合增强空间和语义信息</li>
+<li>学习不同的目标模型(relative model/part-based model)来处理部分遮挡和变形</li>
+<li>使用 Two-Stream 网络来防止过拟合以及学习旋转信息</li>
+</ol>
+<h4 id="平衡训练数据"><a href="#平衡训练数据" class="headerlink" title="平衡训练数据"></a>平衡训练数据</h4><p>对于单目标跟踪来说只有一个 positive sample, 也就是第一帧中被标注的对象, 这有可能导致过拟合, 尽管可以将任意的背景信息视为每个帧中的背景作为 negative information, 但不完美的目标估计也可能导致不可靠的训练样本, 这些问题极大影响了跟踪的精度.</p>
+<ol>
+<li>domain adaption</li>
+<li>various update mechanisms(e.g., periodic, stochastic, short-term, and long-term updates)</li>
+<li>convolutional Fisher discriminative analysis (FDA) for positive and negative sample mining</li>
+<li>efficient sampling strategies to increase the number of training samples</li>
+</ol>
+<h4 id="计算复杂度问题"><a href="#计算复杂度问题" class="headerlink" title="计算复杂度问题"></a>计算复杂度问题</h4><ol>
+<li>把大的 CNN 分解为几个小的网络</li>
+<li>对训练样本空间进行压缩或者剪枝</li>
+<li>使用 RoI 来进行特征计算, 或者使用 oblique random frost 来获取更好的数据</li>
+<li>corrective domain adaption method</li>
+<li>轻量级结构</li>
+<li>高效的优化过程</li>
+<li>充分利用相关滤波</li>
+<li>particle sampling strategy</li>
+<li>使用 attention</li>
+</ol>
+<h3 id="SNN"><a href="#SNN" class="headerlink" title="SNN"></a>SNN</h3><p>给定 target 和 search regions, 孪生网络计算 same function 来得到一个 similarity map, SNN-based 模型的共同目标是为了克服预训练 CNN 的限制以及充分利用 end-to-end learning 来进行实时跟踪.</p>
+<h4 id="为了得到判别性的特征"><a href="#为了得到判别性的特征" class="headerlink" title="为了得到判别性的特征"></a>为了得到判别性的特征</h4><ol>
+<li>学习 distractor-aware 或者 target-aware 的特征</li>
+<li>多级特征融合或者结合 confidence map</li>
+<li>在 siamese function 中使用不同的 loss function 以得到更有效的 filters</li>
+<li>使用不同的特征, 例如上下文信息或者时序信息</li>
+<li>开拓 low-level 的空间特征</li>
+<li>考虑角度估计来防止显著性的背景物体</li>
+<li>使用 multi-stage refine 来目标特征</li>
+<li>使用更深/宽的 backbone</li>
+</ol>
+<h4 id="适应目标外观变换"><a href="#适应目标外观变换" class="headerlink" title="适应目标外观变换"></a>适应目标外观变换</h4><ol>
+<li>online update strategy</li>
+<li>background suppression</li>
+<li>把跟踪看成一个 one-shot 的 local detection 问题</li>
+<li>给重要的 feature channel 或者 score maps 更高的权重</li>
+</ol>
+<p>或者, DaSiamRPN 和 MMLT 使用 local-to-global 的区域搜索策略来处理全遮挡, 消失问题, 使用 memory exploitation 来增强 local search strategy</p>
+<h4 id="平衡训练数据-1"><a href="#平衡训练数据-1" class="headerlink" title="平衡训练数据"></a>平衡训练数据</h4><ol>
+<li>使用 multi-stage Siamese framework 来模拟 hard negative sampling</li>
+<li>使用多级采样, 例如固定背景的比例, 使用随机采样, 或者 flow-based 采样</li>
+<li>充分利用相关滤波</li>
+</ol>
+<h3 id="RNN"><a href="#RNN" class="headerlink" title="RNN"></a>RNN</h3><p>RNN是用来考虑时序信息的, 除此以外, 还有一个作用是用于避免使用预训练的 CNN 以防止过拟合(你难道不会 train from scratch 吗?) 这类方法的主要目的如下:</p>
+<ol>
+<li>捕获时序信息, 融合空间和时序信息</li>
+<li>利用上下文信息来处理复杂的背景</li>
+<li>使用 multi-level 的视觉 attention 来增强 target 及抑制背景</li>
+<li>使用 LSTM 来得到 long-term 的信息</li>
+<li>对目标的自身结构进行编码, 以降低与相似干扰物有关的跟踪灵敏度</li>
+</ol>
+<h3 id="GAN"><a href="#GAN" class="headerlink" title="GAN"></a>GAN</h3><p>主要是为了增强训练样本以及目标模型, 这些网络能够在特征空间中增加 positive samples 来解决训练样本的分布不平衡问题, 此外 GAN 也能学习到更加 general 外观分布来解决跟踪中的 self-learning 问题.</p>
+<h3 id="Custom-Networks"><a href="#Custom-Networks" class="headerlink" title="Custom Networks"></a>Custom Networks</h3><p>就是把不同的网络结构给结合起来, 包括 AE, CNN, RNN, SNN 和 RL. 这种网络的主要的 Motivation 和贡献有</p>
+<h4 id="计算复杂度问题-1"><a href="#计算复杂度问题-1" class="headerlink" title="计算复杂度问题"></a>计算复杂度问题</h4><p>TRACA 和 AEPCF 使用 AEs 来压缩原始的特征, EAST 自适应地将浅层特征用于简单帧的跟踪, 将 expensive feature 用于困难帧的跟踪, TRACA , CFSRL 和 AEPCF 还利用了 DCF 的计算有效性.</p>
+<h4 id="模型更新"><a href="#模型更新" class="headerlink" title="模型更新"></a>模型更新</h4><p>这里的更新是指更新 template, 因为目标的形状或者其他条件变了之后需要更新目标的特征, 这样才能更好的进行跟踪.</p>
+<p>为了在跟踪国产中保持 target model 的稳定性, 提出了不同的更新策略.  CFSRL 并行地更新多个模型, DRRL 使用 LSTM 处理长时间依赖, AEPCF 同时使用 long-term 和 shot-term 更新机制来加快跟踪速度.</p>
+<p>DRT 把跟踪的公式修改为下一次定位的最佳 object template 的一个连续决策过程, 此外也可以使用 RL 来进行有效的决策.</p>
+<h4 id="受限的训练数据"><a href="#受限的训练数据" class="headerlink" title="受限的训练数据"></a>受限的训练数据</h4><p>在遮挡, 模糊或者形变过大的情况下, soft 且没有代表性的训练样本会干扰视觉跟踪.</p>
+<p>AEPCF 提出使用一种密集的循环采样方式来防止由于受限数据导致的过拟合, SINT++使用 positive sample generation network (PSGN) 和 hard positive transformation network (HPTN) 来生成 positive samples 以及 hard training samples.</p>
+<p>部分被标记的 training samples 被用来训练 action-driven 的跟踪器</p>
+<h4 id="搜索策略"><a href="#搜索策略" class="headerlink" title="搜索策略"></a>搜索策略</h4><p>搜索策略的定义就是如何预测需要被跟踪的目标在下一帧的状态, 目前最佳的搜索区域取决于迭代搜索策略, 但这种策略通常和视频内容无关, 而且还需要蛮力搜索并且手工设计</p>
+<p>最近有使用 RL 来学习 data-driven 的搜索策略, 为了全面地得到 RoI 和最佳的 Candidate, 这种机制考虑了目标的上下文变换和目标的运动, 此外 ACT 和 DRRL 提出了基于 coarse-to-fine verification 和 dynamic search process 的实时 RL-based 搜索策略</p>
+<h4 id="捕获额外信息"><a href="#捕获额外信息" class="headerlink" title="捕获额外信息"></a>捕获额外信息</h4><p>DCTN 使用 Two-Stream 网络, SRT 使用 multi-directional RNN 来学习跟踪过程中目标的进一步依赖性, DRL-IS 提出一种 Actor-Critic 网络来估计目标运动参数</p>
+<h4 id="决策"><a href="#决策" class="headerlink" title="决策"></a>决策</h4><p>Online 决策对 DL-based 的跟踪方法的性能有主要影响,  P-Track 使用 data-driven 的技术来决定跟踪, 重新初始化或者更新过程. DRL-IS 根据目标状态来选择最佳的行为, 也有工作提出一个动作预测网络来调整跟踪器的连续动作, 以此决定最佳的策略.</p>
+<h2 id="按网络用途分"><a href="#按网络用途分" class="headerlink" title="按网络用途分"></a>按网络用途分</h2><p>大致分为2个:</p>
+<ol>
+<li>重用在相关数据集上预训练的模型</li>
+<li>为跟踪任务重新训练模型</li>
+</ol>
+<h3 id="使用预训练模型"><a href="#使用预训练模型" class="headerlink" title="使用预训练模型"></a>使用预训练模型</h3><p>在 ImageNet 上或者在检测数据集上进行预训练, 然后对不同分辨率的特征进行融合, 总的来说就2个主要的点, 一个是提取动作信息, 另一个是选择适合跟踪任务的特征.</p>
+<h3 id="使用现有的特征"><a href="#使用现有的特征" class="headerlink" title="使用现有的特征"></a>使用现有的特征</h3><p>使用现有特征会限制跟踪器的性能, 因为 offline trained 的模型可能捕捉不到目标变换, 而且会对初始的 target templates 过拟合.</p>
+<p>目前的方法通常都会用 offline training 或者 online training 或者都使用来预训练 backbone</p>
+<h2 id="按训练方式分类"><a href="#按训练方式分类" class="headerlink" title="按训练方式分类"></a>按训练方式分类</h2><h3 id="offline-training"><a href="#offline-training" class="headerlink" title="offline training"></a>offline training</h3><p>传统的那一套, 在相关的其他数据集上进行预训练</p>
+<h3 id="online-training"><a href="#online-training" class="headerlink" title="online training"></a>online training</h3><p>online training 是为了针对那些外观信息变化较大的目标, 通常使用整个 DNN 或者固定一部分, 对另一部分进行 online training 来调整网络参数, 使其能够捕获一些外观信息改变的物体.</p>
+<p>但考虑到在大规模数据集上进行 offline training 比较耗时间并且学到的特征不是很适合于其他任务, 所以基本还是 offline 对模型进行训练, 只是在 inference 的时候再 online 更新模型参数.(use directly training of DNNs and inference process alternatively online.)</p>
+<h3 id="both-online-training-and-offline-training"><a href="#both-online-training-and-offline-training" class="headerlink" title="both online training and offline training"></a>both online training and offline training</h3><p>offline training 和 online training 得到的特征被证明是可以共享, 且是和领域相关的, offline feature 主要将目标与前景信息分开, online training 的目的是将类内干扰因素区分开</p>
+<h2 id="按照目标函数分"><a href="#按照目标函数分" class="headerlink" title="按照目标函数分"></a>按照目标函数分</h2><ol>
+<li>都是分类</li>
+<li>都是回归</li>
+<li>分类+回归<br>前面都是在扯淡, 就这个靠谱, 和目标检测一样, 分类用于对bbox分类, 回归用于调整 bbox 坐标.</li>
+</ol>
+<h2 id="按模型输出分"><a href="#按模型输出分" class="headerlink" title="按模型输出分"></a>按模型输出分</h2><ol>
+<li>confidence map (also includes score map, response map, and voting map)</li>
+<li>Bounding Box (also includes rotated Bounding Box)</li>
+<li>object score (also includes probability of object proposal, verification score, similarity score, and layerwise score)</li>
+<li>action</li>
+<li>feature maps</li>
+<li>segmentation mask</li>
+</ol>
+<h2 id="相关滤波"><a href="#相关滤波" class="headerlink" title="相关滤波"></a>相关滤波</h2><p>基于 DCF (Discriminative Correlation Filter) 的方法旨在学习一组判别滤波器，这些判别滤波器将它们与频域中的一组训练样本进行逐元素相乘即可确定空间目标位置.</p>
+<p>使用相关滤波的方法, 主要根据如何使用相关滤波来进行分类, 主要有利用相关滤波来高效地进行计算, 使用 correlation layer 或者相关目标函数等.</p>
+<h1 id="Benchmark-数据集和评价指标"><a href="#Benchmark-数据集和评价指标" class="headerlink" title="Benchmark 数据集和评价指标"></a>Benchmark 数据集和评价指标</h1><h2 id="数据集"><a href="#数据集" class="headerlink" title="数据集"></a>数据集</h2><p>直接上图吧<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/datasets.png"></p>
+<h2 id="评价指标"><a href="#评价指标" class="headerlink" title="评价指标"></a>评价指标</h2><ol>
+<li><p>Center Location Error(CLE)<br>GT 坐标和预测坐标之间的平均欧式距离, CLE是最古老的指标，它不仅对数据集标注敏感，不会考虑跟踪失败，而且会忽略目标 BB 并导致重大错误。</p>
+</li>
+<li><p>Accuracy<br>在给定一个确定阈值的情况下, overlap score 决定了跟踪器在一帧中是否跟踪成功, 最终的 accuracy 由 average overlap score 计算得到, overlap score 其实就是 IoU:<br>$$<br>S=\frac{\left|b_{t} \cap b_{g}\right|}{\left|b_{t} \cup b_{g}\right|}<br>$$</p>
+</li>
+<li><p>Robustness/failure score<br>就是跟踪器在跟踪过程中跟丢的数目, 即目标需要被重新初始化的次数, 跟丢的定义为 IoU 降到 0</p>
+</li>
+<li><p>Expected average overlap (EAO)<br>可以看成是 Accuracy 和 Robustness 的结合, 对于给定的 $N_s$ 个 frames, EAO scores 为:<br>$$<br>\widehat{\Phi}<em>{N</em>{s}}=\left\langle\frac{1}{N_{s}} \sum_{i=1}^{N_{s}} \Phi_{i}\right\rangle<br>$$<br>其中 $\Phi_i$ 是跟踪器在每个帧的平均 IoU</p>
+</li>
+<li><p>Area under curve (AUC)<br>其定义为平均成功率(0 到 1)</p>
+</li>
+</ol>
+<h2 id="性能图"><a href="#性能图" class="headerlink" title="性能图"></a>性能图</h2><ol>
+<li><p>Precision plot<br>预测符合条件帧占所有帧的百分比, 符合条件是指预测的位置和真实位置之间有特定的阈值??? ( Given the CLEs per different thresholds, the precision plot shows the percentage of video frames in which the estimated locations have at most the specific threshold with the ground-truth locations)</p>
+</li>
+<li><p>Success plot<br>评估了那些预测的 bbox 和真实 bbox 之间的 IoU 大于确定阈值的帧占所有帧的百分比.</p>
+</li>
+<li><p>EAO Curve<br>对于单个长度的视频序列，预期的平均重叠曲线是由特定间隔 $[N_{lo}, N_{hi }]$ 得到:<br>$$<br>\widehat{\Phi}=\frac{1}{N_{h i}-N_{l o}} \sum_{N_{s}=N_{l o}}^{N_{h i}} \widehat{\Phi}<em>{N</em>{s}}<br>$$</p>
+</li>
+<li><p>One-pass evaluation with restart (OPER):<br>评估对目标重新进行初始化的准确率, 一次重新初始化是指目标跟踪失败一次.</p>
+</li>
+</ol>
+<h1 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h1><p>结果太多了, 可以去 <a target="_blank" rel="noopener" href="https://github.com/MMarvasti/Deep-Learning-for-Visual-Tracking-Survey">Github</a> 看完整的实验结果, 这里贴最后结果出来看下.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/results_vot2018.png"></p>
+<h1 id="总结和讨论"><a href="#总结和讨论" class="headerlink" title="总结和讨论"></a>总结和讨论</h1><p>最近的方法都是从以下几个方向来做的:</p>
+<ol>
+<li>利用数据增强, 对抗训练的生成网络来消除训练数据的不平衡分布</li>
+<li>重新定义分类/回归的公式来进行更加高效的训练并且得到更加适合跟踪的特征</li>
+<li>使用更宽, 更深的 backbone</li>
+<li>通过使用其他信息(上例如下文, 时序信息)来提取互补特征</li>
+</ol>
+<p>具体来说:</p>
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>消除训练数据中正负样本的不平衡分布</span></div>
+    <div class="hide-content"><ol>
+<li>VITAL, DaSiamRPN, UPDT 都试图消除训练数据中正负样本的不平衡分布</li>
+<li>VITAL 使用对抗训练来增强正样本, 减少负样本, 而且提供更加有判别性和鲁棒性的特征</li>
+<li>DaSiamRPN 同时使用数据增强和和负语义样本 (negative semantic samples) 来考虑视觉干扰因素并提高视觉跟踪的鲁棒性</li>
+<li>UPDT 使用标准的数据增强和一种质量评估(用于预测状态)来有效地融合浅层和深层特征</li>
+</ol>
+</div></div>
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>提高 DL-based 方法的学习过程</span></div>
+    <div class="hide-content"><ol>
+<li>UPDT, DeepSTRCF, DRT, LSART, and ASRCF 都修改了 DCF 的传统岭回归公式.</li>
+<li>DaSiamRPN 使用 distractor-aware 的目标函数</li>
+<li>VITAL 提出了一种 cost-sensitive loss 重新定义了 GAN 的目标函数</li>
+<li>SiamDW, SiamRPN++, SiamMask 使用现有的 SOTA 网络来作为 backbone</li>
+<li>SiamDW 提出新的残差模块和结构来防止显著地增加感受野并同时提高特征可判别性和 localization 精度</li>
+<li>SiamRPN++的结构包括了不同的 layer-wise 和 depth-wise 特征聚合, 以此来填补 SNN-based 和 CNN-based 方法之间的性能差距.</li>
+</ol>
+</div></div>
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>考虑时序信息</span></div>
+    <div class="hide-content"><ol>
+<li>DAT 使用 reciprocative learning</li>
+<li>DeepSTRCF 使用 online passive-aggressive (PA) learning</li>
+<li>主要有 4 种学习方法:</li>
+</ol>
+<ul>
+<li>similarity learning(i.e., SiamDW, SiamRPN++, C-RPN, StructSiam, SiamMask, DaSiamRPN)</li>
+<li>multi-domain learning (i.e., MDNet, DAT)</li>
+<li>adversarial learning (i.e., VITAL)</li>
+<li>spatial-aware regressions learning (i.e., LSART)<br>再加上最后的 DCF learning</li>
+</ul>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>使用简单的 Backbone</span></div>
+    <div class="hide-content"><p>个人感觉这是为了速度问题, 但这种简单的 backbone 不能得到 discriminative  的特征, 所以为了解决在形变严重及存在视觉干扰因素下的鲁棒性问题, 不同的方法提出了不同的解决方案:</p>
+<ol>
+<li>C-RPN 在 Siamese Network 中级联多个 RPN, 以此来解决 hard negative samples 问题</li>
+<li>为了减少 SNN-based 方法对非刚性物体外观信息改变敏感及 POC 属性, StructSiam 检测 local pattern 的上下文及相互之间的关系, 且利用一个 Siamese Network 来进行实时匹配</li>
+<li>DaSiamRPN 采用 local-to-global 的搜索策略和 NMS 来重新检测目标并减少可能的干扰因素, DaSiamRPN 能有效处理 FOC, OV, POC 和 BC 问题</li>
+</ol>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>使用较大的 Backbone</span></div>
+    <div class="hide-content"><p>SiamMask, SiamDW-SiamRPN 和 SiamRPN++ 都使用 ResNet, 使用大的 Backbone 的好处在于能得到比较丰富的特征, 所以可以用于多个任务.</p>
+<ol>
+<li>SiamMask 用 three-branches 来预测旋转的 bbox, 一个用于预测 bbox, 一个用于预测角度, 还有一个用于预测 binary mask(盲猜是遮挡, 具体还是看论文吧)</li>
+<li>SiamMask 无法处理的场景在于 MB 和 OV, 因为他们会产生错误的目标 mask</li>
+<li>SiamDW-SiamRPN 和 SiamRPN++ 充分利用了大 backbone 的好处, 以此来减少模型对 MB 和 OV 的敏感性.</li>
+</ol>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>MDNet 和基于它的方法们</span></div>
+    <div class="hide-content"><p>由于在大规模数据集上对这些网络进行了专门的 offline training 和 online training, 因此这些方法能够处理各种挑战, 几乎不会错过视觉目标, 所以有着比较令人满意的性能.</p>
+<p>但这些方法的问题在于:</p>
+<ol>
+<li>计算复杂度高</li>
+<li>有相同语义信息的目标之间存在类内问题</li>
+<li>进行 scale estimate 时的空间是离散的</li>
+</ol>
+<p>VITAL 能够在 DEF, IPR 和 OPR 下表现良好是因为利用 cost-sensitive loss 集中对 hard negative samples 的处理, 但由于利用一个生成网络产生了固定尺寸的 mask, 所以无法很好地处理比较明显的 SV 情况.</p>
+<p>LSART 利用改进的 Kernelized ridge 回归（KRR），通过逐块相似性的加权组合来专注于目标的可靠区域。考虑到旋转角度信息和 CNN 的在线适应能力, 该方法能有效作用于 DEF 和 IPR 情况.</p>
+</div></div>
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>基于 DCF 的方法</span></div>
+    <div class="hide-content"><p>DeepSTRCF, ASRCF, DRT 和 UPDT 不仅可以利用现有的深层特征(就 CNN 学的特征), 还可以将它们与浅层(这里是指手工设计的特征, 例如 HOG, SIFT 这些)功能融合, 以提高视觉跟踪的鲁棒性.</p>
+<ol>
+<li>DeepSTRCF 提出一种时序正则化机制, 并将其添加到空间正则化的 DCF 公式中, 以减少 OOC 和 OV 的不利影响</li>
+<li>使用 object-aware 的空间正则化项和可靠项, ASRCF 和 DRT 尝试优化模型以有效地学习更多自适应的相关滤波.</li>
+<li>UPDT 主要用于增强目标跟踪的鲁棒性, 利用独立训练基于浅层特征的 DCF 和基于深度特征的 DCF 的自适应性融合来实现.</li>
+</ol>
+<p>尽管这些基于 DCF 方法与更复杂的跟踪器相比, 有差不多的性能, 但这些方法仍然存在对预训练模型的局限性(例如计算复杂度), 纵横比变换, 模型降级和外观信息变化巨大等问题.</p>
+</div></div>
+
+
+
+<p>下面是对近2年论文摘要的一个总结翻译, 最后会有个小总结, 目的是为了搞明白近2年在做什么, 在研究什么问题, 如何解决这些问题.</p>
+<h1 id="CVPR’20"><a href="#CVPR’20" class="headerlink" title="CVPR’20"></a>CVPR’20</h1><div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>A Unified Object Motion and Affinity Model for Online Multi-Object Tracking</span></div>
+    <div class="hide-content"><p>这篇文章主要解决的是速度问题, 把目标动作和相似性模型统一成一个框架, 主要想法是通过多任务学习来将单个目标跟踪和度量学习集成到一个统一的三元组网络.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/UMA_MOT16.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/UMA_MOT17.png"></p>
+</div></div>
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Correlation-Guided Attention for Corner Detection Based Visual Tracking</span></div>
+    <div class="hide-content"><p>分析了基于角点的检测在跟踪中效果不好的原因, 并提出了一个 two-stage 的 correlation-guided attentional corner detection. <strong>直观理解就是在空间和通道维度上加了 attention 来让角点检测效果更好.</strong></p>
+<p>第一个阶段使用 Siamese 网络得到的 RoI 来把目标从背景中区分开来<br>第二个阶段添加了 pixel-wise correlation-guided spatial attention module 和一个 channel-wise correlation-guided channel attention module 来为角点检测增强 RoI 的特征.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/CGACD_VOT18.png"></p>
+</div></div>
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Deformable Siamese Attention Networks for Visual Object Tracking</span></div>
+    <div class="hide-content"><p>引入一种新的 Siamese attention 机制, 这种 attention 机制能够计算可变形的 self-attention 和 cross-attention.</p>
+<p>作者认为 self-attention 能够通过空间注意力来学到很强的上下文信息, 并且利用 channel attention 来增强 channel-wise 特征.</p>
+<p>cross-attention 能够聚合 template 和 search region 的上下文依赖关系, 从而隐式地自适应地更新目标 template.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/deformable_SAN_VOT.png"></p>
+</div></div>
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>High-Performance Long-Term Tracking with Meta-Updater Best Paper Mention</span></div>
+    <div class="hide-content"><p>聚焦 long-term 的单目标跟踪</p>
+<p>目前的 long-term 跟踪方法基本采用 offline training 的 Siamese Network, 所以不能从使用 online training 的 short-term 跟踪过程中受益, 但又不能用 online training 来解决 long-term 的问题, 因为 long-term 跟踪有很大的不确定性.</p>
+<p>所以作者提出了一个 offline-trained 的更新器 <strong>Meta-Updater</strong>, 用这个东西来判断是否在当前帧更新 target template.</p>
+<p>这个 Meta-Updater 可以按顺序有效集成几何信息, 判别信息和外观信息, 并输出一个二值输出, 判断是否更新, 然后用级联的 LSTM 来处理这些信息序列</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/LTMU_VOT18.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/LTMU_VOT19.png"></p>
+</div></div>
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>How to Train Your Deep Multi-Object Tracker</span></div>
+    <div class="hide-content"><p>聚焦 short-term 的多目标跟踪</p>
+<p>把评价指标放到损失函数里面的一个工作</p>
+<p>目前的多目标跟踪方法的评价指标都是不可微的, 例如 MOTA 和 MOTP, 作者提出了一种可微分的 MOTA 和 MOTP 的代理来为 end-to-end 的跟踪得到一个合适的目标函数</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/deepmot_mot.png"></p>
+</div></div>
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Learning a Neural Solver for Multiple Object Tracking</span></div>
+    <div class="hide-content"><p>聚焦 short-term 的多目标跟踪</p>
+<p>用图来做多目标跟踪, 把图论中经典的网络流公式用于定义一个全部可微分的框架, 通过直接在图域上操作，可以在整个检测范围内进行全局推理并预测最佳解决方案.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/graph_solver_mot.png"></p>
+</div></div>
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Probabilistic Regression for Visual Tracking</span></div>
+    <div class="hide-content"><p>聚焦 short-term 的单目标跟踪</p>
+<p>目前的算法都需要预测一个独立状态的 confidence map, 但这个值缺乏一个明确的概率解释.</p>
+<p>本文提出了一种概率回归方程并将其用于跟踪中, 对于给定的一张图像, 预测目标状态条件概率密度.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/PrDiMP_vot18.png"></p>
+</div></div>
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Recursive Least-Squares Estimator-Aided Online Learning for Visual Tracking</span></div>
+    <div class="hide-content"><p>聚焦 short-term 的单目标跟踪</p>
+<p>online training 能够在存在背景干扰的情况下提供比较高的辨别力, 但也有 2 个不足, 即无法保证良好的收敛性以及由于内存限制进行过多更新而导致的过拟合问题, 这篇文章主要解决的是这个问题.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/RLS-RTMDNet_VOT.png"></p>
+</div></div>
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>RetinaTrack: Online Single Stage Joint Detection and Tracking</span></div>
+    <div class="hide-content"><p>想法是把检测和跟踪用 RetinaNet 合起来做??? 不太懂</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/retina_track_vot17.png"></p>
+</div></div>
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>ROAM: Recurrently Optimizing Tracking Model</span></div>
+    <div class="hide-content"><p>聚焦 short-term 的单目标跟踪</p>
+<p>简单地把 CenterNet 那套拿来了, 用一个 heat map 来预测物体的位置, 然后回归 bbox, 不同的是 offline train 了一个 recurrent neural optimizer 来在 meta-learning 的情况下更新模型</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/ROAM_VOT.png"></p>
+</div></div>
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Siam R-CNN: Visual Tracking by Re-Detection</span></div>
+    <div class="hide-content"><p>利用重新检测的方式来解决遮挡问题</p>
+<p>同时使用了第一帧的 template 和之前帧的预测来进行重新检测, 这样能够同时对背景和要被跟踪的目标进行建模. 这种方法能保证在长时间的遮挡之后仍然能被检测到.</p>
+<p>还提出了一种 hard example mining 的方法提高对相似物体的鲁棒性</p>
+<p>short-term 的结果<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/Siam_RCNN.png"></p>
+<p>long-term 的结果<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/SiamRCNN_VOT18_longterm.png"></p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>SiamCAR: Siamese Fully Convolutional Classification and Regression for Visual Tracking</span></div>
+    <div class="hide-content"><p>把目标跟踪分成 2 个任务, 对每个像素进行分类以及对每个像素的 bbox 进行回归, 整体结构就 2 个子网络, 一个用于特征提取, 一个用于 bbox 预测</p>
+<p>这个网络同时实现了 anchor free 和 proposal free.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/SiamCAR.png"></p>
+</div></div>
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Siamese Box Adaptive Network for Visual Tracking</span></div>
+    <div class="hide-content"><p>short-term 的单目标跟踪</p>
+<p>又是 CenterNet 那一套, 服了…直接用全卷积网络来分类和回归.直接下一篇.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/siamesebox_vot.png"></p>
+</div></div>
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>SQE: a Self Quality Evaluation Metric for Parameters Optimization in Multi-Object Tracking</span></div>
+    <div class="hide-content"><p>提了个新的评价标准, 过.</p>
+</div></div>
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Tracking by Instance Detection: A Meta-Learning Approach</span></div>
+    <div class="hide-content"><p>short-term 的单目标跟踪</p>
+<p>通过适当的初始化，可以通过从单个图像中学习新 instance 来将检测器快速转换为跟踪器。</p>
+<p>作者发现与模型无关的元学习提供了一种初始化, 使其能满足我们需求.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/MAML_VOT2018.png"></p>
+</div></div>
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>TubeTK: Adopting Tubes to Track Multi-Object in a One-Step Training Model</span></div>
+    <div class="hide-content"><p>short-term 的多目标跟踪</p>
+<p>目前的 Tracking by Detection 其实是一个二阶段的东西, 先检测再跟踪, 但这种方法有一些不足, 所以作者提出使用 “bounding tube” 来表示物体的时空位置, 这样仅需仅需一次训练即可, 无需先训练检测再训练跟踪.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/tubetk_vot.png"></p>
+</div></div></div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">Ming Li</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://coderming.cn/2020/09/29/Introduction-To-Visual-Tracking/">https://coderming.cn/2020/09/29/Introduction-To-Visual-Tracking/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Object-Detection/">Object Detection</a><a class="post-meta__tags" href="/tags/Tracking/">Tracking</a></div><div class="post_share"><div class="social-share" data-image="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/avatar.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> Donate<div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://limingcv.coding.net/p/images/d/images/git/raw/master/reward/wechat.png" target="_blank"><img class="post-qr-code-img" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/reward/wechat.png" alt="WeChat"/></a><div class="post-qr-code-desc">WeChat</div></li><li class="reward-item"><a href="https://qr.alipay.com/fkx12431y6k0soy7vokzi19" target="_blank"><img class="post-qr-code-img" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/reward/alipay.jpg" alt="AliPay"/></a><div class="post-qr-code-desc">AliPay</div></li></ul></div></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/10/01/Action-Localization/"><img class="prev-cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/temporal_action_localization.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">Action Localization</div></div></a></div><div class="next-post pull-right"><a href="/2020/09/15/Introduction-To-Adversarial-Examples/"><img class="next-cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Adversarial-Examples/avatar.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">Introduction to Adversarial Examples</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2020/06/20/Object-Detection-Review/" title="Object Detection Review"><img class="cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/06/Object-Detection-Review/review.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-06-20</div><div class="title">Object Detection Review</div></div></a></div></div></div></article></main><footer id="footer" style="background-image: url(https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/avatar.jpg)"><div id="footer-wrap"><div class="copyright">&copy;2020 By Ming Li</div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">Local search</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>Powered by</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a></div></div></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div></div></body></html>

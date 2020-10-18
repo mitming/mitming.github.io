@@ -1,0 +1,936 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Action Recognition | Ming</title><meta name="keywords" content="Video,Action"><meta name="author" content="Ming Li"><meta name="copyright" content="Ming Li"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="基本知识大家去看 Justin Johnson 开的 EECS 498-007 &#x2F; 598-005: Deep Learning for Computer Vision 这门公开课就好啦 这里就直接上近 2 年的顶会论文了 ECCV’20AR-Net: Adaptive Frame Resolution for Eﬃcient Action Recognition     想法是为输入中的每个帧即">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Action Recognition">
+<meta property="og:url" content="https://coderming.cn/2020/10/02/Action-Recognition/index.html">
+<meta property="og:site_name" content="Ming">
+<meta property="og:description" content="基本知识大家去看 Justin Johnson 开的 EECS 498-007 &#x2F; 598-005: Deep Learning for Computer Vision 这门公开课就好啦 这里就直接上近 2 年的顶会论文了 ECCV’20AR-Net: Adaptive Frame Resolution for Eﬃcient Action Recognition     想法是为输入中的每个帧即">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/avatar.png">
+<meta property="article:published_time" content="2020-10-02T11:16:32.000Z">
+<meta property="article:modified_time" content="2020-10-04T13:54:01.529Z">
+<meta property="article:author" content="Ming Li">
+<meta property="article:tag" content="Video">
+<meta property="article:tag" content="Action">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/avatar.png"><link rel="shortcut icon" href="/img/avatar.jpg"><link rel="canonical" href="https://coderming.cn/2020/10/02/Action-Recognition/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  hexoversion: '5.2.0',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: true,
+  postUpdate: '2020-10-04 21:54:01'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {
+  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }
+})()</script><meta name="generator" content="Hexo 5.2.0"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">Articles</div><div class="length_num">18</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">Tags</div><div class="length_num">14</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">Categories</div><div class="length_num">7</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/images/"><i class="fa-fw fas fa-images"></i><span> Images</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div></div></div></div><div id="body-wrap"><div id="web_bg"></div><div id="sidebar"><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#ECCV%E2%80%9920"><span class="toc-number">1.</span> <span class="toc-text">ECCV’20</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#CVPR%E2%80%9920"><span class="toc-number">2.</span> <span class="toc-text">CVPR’20</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#ICCV%E2%80%9919"><span class="toc-number">3.</span> <span class="toc-text">ICCV’19</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#CVPR%E2%80%9919"><span class="toc-number">4.</span> <span class="toc-text">CVPR’19</span></a></li></ol></div></div></div><header class="post-bg" id="page-header" style="background-image: url(https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/avatar.png)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Ming</a></span><span id="menus"><div id="search_button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> Search</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/images/"><i class="fa-fw fas fa-images"></i><span> Images</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div></div><span class="close" id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">Action Recognition</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2020-10-02T11:16:32.000Z" title="Created 2020-10-02 19:16:32">2020-10-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2020-10-04T13:54:01.529Z" title="Updated 2020-10-04 21:54:01">2020-10-04</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Video-Analysis/">Video Analysis</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word count:</span><span class="word-count">7.4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading time:</span><span>25min</span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p>基本知识大家去看 <a target="_blank" rel="noopener" href="https://web.eecs.umich.edu/~justincj/">Justin Johnson</a> 开的 <a target="_blank" rel="noopener" href="https://web.eecs.umich.edu/~justincj/teaching/eecs498/FA2020/">EECS 498-007 / 598-005: Deep Learning for Computer Vision</a> 这门公开课就好啦</p>
+<p>这里就直接上近 2 年的顶会论文了</p>
+<h1 id="ECCV’20"><a href="#ECCV’20" class="headerlink" title="ECCV’20"></a>ECCV’20</h1><div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>AR-Net: Adaptive Frame Resolution for Eﬃcient Action Recognition</span></div>
+    <div class="hide-content"><p>想法是为输入中的每个帧即时选择最佳的分辨率, 以此来有效识别长的未裁剪的视频. 具体的, 对于给定给定视频帧, 用一个 policy network 替分类网络决定使用多大的分辨率, 这个 policy network 是和分类网络一起联合使用反向传播来训练的.</p>
+<p>Pipeline 如下:</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/ARNet_structure.png"></p>
+<p>估计作者和我一样, 缺卡, 所以没跑整个 Kinetics 数据集.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/arnet_result_activity_and_fcvid.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/arnet_result_map_and_flops.png"></p>
+</div></div>
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>DDGCN: A Dynamic Directed Graph Convolutional Network for Action Recognition</span></div>
+    <div class="hide-content"><p>利用图卷积和骨架信息来进行动作识别, 涉及到骨架的方法等用到骨架的时候再看吧, 先跳过.</p>
+</div></div>
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Decoupling GCN with DropGraph Module for Skeleton-Based Action Recognition</span></div>
+    <div class="hide-content"><p>同上, 也是利用图卷积和骨架信息来进行动作识别, 涉及到骨架的方法等用到骨架的时候再看吧, 先跳过.</p>
+</div></div>
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Directional Temporal Modeling for Action Recognition</span></div>
+    <div class="hide-content"><p>许多现在的行为识别模型使用 3D 卷积, 但 3D 卷积无法对 clip-level 的有序时空信息进行建模.</p>
+<p>作者提出了一种 channel independent directional convolution (CIDC) 操作, 这种卷积操作能学到局部特征之间的时序信息, 通过使用 CIDC 来对 cross multiple spatial scales 的 clip-level 时序信息进行建模.</p>
+<p>作者还对 CIDC 网络的 activation map 进行了可视化, 表明这种操作能够使模型关注于更有意义, 和动作相关的帧.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/CIDC_unit.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/CIDC_pipeline.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/CIDC_result_ucf_and_hmdb.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/CIDC_result_kinetics_and_sth_sth.png"></p>
+</div></div>
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Empowering Relational Network by Self-Attention Augmented Conditional Random Fields for Group Activity Recognition</span></div>
+    <div class="hide-content"><p>group activity recognition 是指识别一群人正在干啥. </p>
+<p>本文的核心是通过新设计的时间和空间 self attention 来学习视频中每个 actor 的时间演变和空间关系背景，从而增加条件随机场（CRF），以学习相关观测值的相互依赖性。</p>
+<p>这种组合方式利用 self attention 的全局感受野来构造一个时空拓扑图, 以解决 actor 的时间依赖性和非局部的关系.</p>
+<p>首先使用 temporal self-attention 和 spatial self-attention 来对 CRF 的 pairwise energy 进行建模, 接着为了适应每个视频的独特性, 还提出了一种具有动态停止功能的 mean-field inference 算法, 最后结合了前向和后向时间上下文信息的通用 transformer encoder (UTE) 用于聚合关系上下文和场景信息, 以进行 group action recognition.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/self_attention_augmented_crf_pipeline.png"></p>
+</div></div>
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Few-shot Action Recognition with Permutation-invariant Attention</span></div>
+    <div class="hide-content"><p>Philip H. S. Torr 组的文章, 主要是对视频分类做少样本学习.</p>
+<p>本文用一个 C3D 的 encoder 来对时空视频块捕获 short-range 的 action parttern, 然后把这些 encoder blocks 利用 permutation-invariant pooling 给聚合到一起, 这种方法能使模型对不同的  action lengths 和 long-range 时序信息更加鲁棒.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/arn_result.png"></p>
+</div></div>
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Human Interaction Learning on 3D Skeleton Point Clouds for Video Violence Recognition</span></div>
+    <div class="hide-content"><p>3D 的骨骼信息, 老规矩, 跳过.</p>
+</div></div>
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Multi-view Action Recognition using Cross-view Video Prediction</span></div>
+    <div class="hide-content"><p>挖坑??? 提出了在多视角环境下的动作识别问题…问题的定义是把不同视角和不同时间的几个 short clips 作为输入, 以此来学习一个整体的 internal representation, 这个 representation 用于从未知的视角和时间预测 video clip</p>
+</div></div>
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>RAFT: Recurrent All-Pairs Field Transforms for Optical Flow</span></div>
+    <div class="hide-content"><p>Jia Deng 大佬组的工作, 用深度学习来生成光流.</p>
+<p>核心想法是提取每一个像素点的特征, 为所有的像素对建立多尺度的 4D correlation volumes, 并通过一个 recurrent unit 来迭代地更新一个 flow field</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/raft_structure.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/raft_results.png"></p>
+</div></div>
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>RubiksNet: Learnable 3D-Shift for Efficient Video Action Recognition</span></div>
+    <div class="hide-content"><p>Fei-Fei Li 组的工作…</p>
+<p>由于需要对空间上下文和时序上下文信息进行建模, 标准的方法依赖于 2D 或者 3D 的卷积来做这件事, 这导致了非常大的参数量.</p>
+<p>最近有些高效的方法使用一个 channel-wise, shift-based 的 primitive 作为时序卷积的一种替代来降低参数量, 但这种方法仍然受限于一个 fixed-shift 方案以及在空间上的卷积操作.</p>
+<p>为了解决这个问题作者提出了一种 <strong>可学习的 3D 时空 shift 操作</strong>, 作者分析了新的 primitive 对视频动作识别的适用性, 并探索了几种变体, 在保持高效设计的同时实现了更强的 representational flexibility.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/prior_work_for_efficient_sihft_based_video_recognition.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/rubiksshift_layer.png"></p>
+<p>看下结果吧</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/rubiksnet_result_sth_sth_v2.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/rubiksnet_result_sth_sth_v1.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/rubiksnet_result_ucf_and_hmdb.png"></p>
+</div></div>
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Social Adaptive Module for Weakly-supervised Group Activity Recognition</span></div>
+    <div class="hide-content"><p>针对 group activity recognition 的弱监督学习…又挖坑, 这次连训练集中都没有重要的 persons…然后自己做了数据集, 吐血…</p>
+</div></div>
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Temporal Distinct Representation Learning for Action Recognition</span></div>
+    <div class="hide-content"><p>不同帧共享相同 2D CNN 的 kernels 会导致重复和冗余的信息, 尤其在空间语义提取过程中, 所以会忽略帧和帧之间的关键变化.</p>
+<p>作者从 2 个方面解决这个问题:</p>
+<ol>
+<li>设计一种顺序通道过滤机制，即渐进增强模块（PEM），以逐步激发不同帧中特征的 discriminative channels，从而避免重复提取信息</li>
+<li>提出了一个 temporal diversity loss 来强迫 kernels 关注并捕获帧和帧之间的变化, 而不是捕捉具有相似外观的图像区域.</li>
+</ol>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/TDR_pipeline.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/TDR_result_sth_sth_v1_and_v2.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/TDR_result_kinetics.png"></p>
+</div></div>
+
+
+<h1 id="CVPR’20"><a href="#CVPR’20" class="headerlink" title="CVPR’20"></a>CVPR’20</h1><div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>3DV: 3D Dynamic Voxel for Action Recognition in Depth Video</span></div>
+    <div class="hide-content"><p>解决 3D 数据的动作识别问题…这里的数据是 3D 的动态 voxel…</p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>ActBERT: Learning Global-Local Video-Text Representations</span></div>
+    <div class="hide-content"><p>Yi Yang 组的工作</p>
+<p>提出用 ActBERT 来从未标记的数据中学习联合的 video-text representation 以进行自监督学习.</p>
+</div></div>
+
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Action Modifiers: Learning from Adverbs in Instructional Videos</span></div>
+    <div class="hide-content"><p>提出了用来自 accompanying narrations 的弱监督方法从教学视频中学习副词的表示形式.</p>
+</div></div>
+
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Active Vision for Early Recognition of Human Actions</span></div>
+    <div class="hide-content"><p>提出了一种 action 的 early recognition 方法, 充分利用了多台摄影机的优势, 本文提出的方法考虑了多个摄像头, 并在每个时间步上决定使用哪个摄像头是最可靠的, 以此来实现尽快的分类.</p>
+<p>作者把相机选择问题看成一个连续的决策过程, 然后用强化学习来做.</p>
+</div></div>
+
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Actor-Transformers for Group Activity Recognition</span></div>
+    <div class="hide-content"><p>提出一种 actor-transformer 模型来学习和选择性地为 group activity recognition 提取相关信息.</p>
+<p>分别利用 2D CNN 和 3D CNN 来给 transformer 提供 actor-specific 的静态和动态的表示, 作者用了 2 种方式来对这些表示进行融合, 并展示了融合之后的效果.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/transformer_static_and_dynamic_representation.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/transformer_structure.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/transformer_results.png"></p>
+</div></div>
+
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Can Deep Learning Recognize Subtle Human Activities?</span></div>
+    <div class="hide-content"><p>又是挖坑, 搞了个细微动作的数据集, 提了个新任务, 用于发现人类动作的细微变化…</p>
+</div></div>
+
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Context Aware Graph Convolution for Skeleton-Based Action Recognition</span></div>
+    <div class="hide-content"><p>骨架信息, 先过</p>
+</div></div>
+
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Disentangling and Unifying Graph Convolutions for Skeleton-Based Action Recognition</span></div>
+    <div class="hide-content"><p>骨架信息, 过</p>
+</div></div>
+
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>End-to-End Learning of Visual Representations From Uncurated Instructional Videos</span></div>
+    <div class="hide-content"><p>提出了一种新的学习方法, 这种方法能够解决 narrated videos 中的 misalignments 问题, 解决这个问题后就能从头学习到更加强大的视频表示, 而无需任何的手工标注.</p>
+<p>这种方法学到的表示超过了目前其他所有自监督学习.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/MIL_NCE_results.png"></p>
+</div></div>
+
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Evolving Losses for Unsupervised Video Representation Learning</span></div>
+    <div class="hide-content"><p>作者把无监督的表示学习看成一种多模态, 多任务的学习问题, 其中利用蒸馏将表示在多个模态之间共享.</p>
+<p>然后利用遗传算法来自动找到损失函数的最佳组合方式, 以此阐明了 loss function evolution 的概念, 基于 Zipf 定律提出了一种无监督表示进化的评估策略.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/Evolving_loss_results.png"></p>
+</div></div>
+
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Few-Shot Video Classification via Temporal Alignment</span></div>
+    <div class="hide-content"><p>少样本学习.</p>
+</div></div>
+
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Gate-Shift Networks for Video Action Recognition</span></div>
+    <div class="hide-content"><p>3D CNN 由于有大量的参数和计算, 如果缺乏足够大的数据集来训练的话, 效果会很不好.</p>
+<p>作者想法是在 3D kernel 的时空分解中引入空间门控, 作者用 Gate-Shift  Module 来实现这种操作, GSM 能把 2D CNN 转为高效的时空特征提取器, 利用 GSM 来让 2D CNN 自适应地 route features 并将这些特征组合起来, 而几乎没有其他参数或者计算量.</p>
+<p>光看摘要我怎么感觉就是 3D 的 attention 呢… 看下 GSM 的结构吧</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/GSM_structure.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/GSM_compare_to_others.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/GSM_implementation.png"></p>
+<p>看下最终的结果吧</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/GSM_result_sth_v1.png"></p>
+</div></div>
+
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Listen to Look: Action Recognition by Previewing Audio</span></div>
+    <div class="hide-content"><p>用 audio 来作为 preview mechanism 来消除 long-term 和 short-term 的冗余.</p>
+<p>提出一种 ImgAud2Vid 的框架, 通过从更轻的模式(单个帧和伴随的音频)中蒸馏信息来 hallucinates clip-level 的特征, 以此来减少 short-term 的时序冗余, 在 ImgAud2Vid 的基础上提出了 IMGAUD-SKIMMING 机制, 用 LSTM 来迭代地选择未裁剪网络中有用的 moments, 从而减少 long-term 的时序冗余.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/audio_result_activity.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/audio_result_ucf.png"></p>
+</div></div>
+
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Multi-Modal Domain Adaptation for Fine-Grained Action Recognition</span></div>
+    <div class="hide-content"><p>无监督的 domain adaptation 在源域和目标域中使用对抗训练, 但这样无法学习每个域中视频的多模态信息, 除了 adversarial alignment 以外, 本文还将不同模态之间的对应关系用作一种自监督的 alignment 方法, 并将其用于无监督的 domain adaptation.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/multi_model_da_structure.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/multi_modek_da_result.png"></p>
+</div></div>
+
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>PREDICT & CLUSTER: Unsupervised Skeleton Based Action Recognition</span></div>
+    <div class="hide-content"><p>研究无监督的, 基于骨骼信息的动作识别, 所有关于骨骼的都先跳过</p>
+</div></div>
+
+
+
+<p>感觉还是有点细, 下面就只简单说下怎么做的了</p>
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Progressive Relation Learning for Group Activity Recognition</span></div>
+    <div class="hide-content"><p>对于 group activity recognition 这个 task 而言, 通常有很多的 actor, 但只有几个关键帧的 actors 从本质上定义了这种 action, 所以有效地对 group-relevant 进行建模以及抑制不相关的 action 是 group activity recognition 的关键.</p>
+<p>本文利用强化学习来 refine 这些 low-level 的特征以及 group activity 的 high-level 相关性.</p>
+</div></div>
+
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Regularization on Spatio-Temporally Smoothed Feature for Action Recognition</span></div>
+    <div class="hide-content"><p>提出用一个正则化方法来防止 3D CNN 的过拟合问题, 这个正则化方法是通过随机更改特征低频分量的大小来实现的.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/RMS_results_kinetics.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/RMS_results_on_2d_cnn.png"></p>
+</div></div>
+
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Rethinking Zero-Shot Video Classification: End-to-End Training for Realistic Applications</span></div>
+    <div class="hide-content"><p>视频中的 zero-shot learning 是只训练一个模型一次, 然后去寻找训练集中没有的视频类别.</p>
+<p>作者的做法和很多传统做法不一样, 传统方法在训练时让 test task 未知, 而作者则鼓励在训练时和 test data 做 domain shift, 并禁止针对特定的测试数据集定制 zero-shot learning 模型.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/zero_shot_learning_results.png"></p>
+</div></div>
+
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Semantics-Guided Neural Networks for Efficient Skeleton-Based Human Action Recognition</span></div>
+    <div class="hide-content"><p>骨架的==</p>
+</div></div>
+
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Sideways: Depth-Parallel Training of Video Models</span></div>
+    <div class="hide-content"><p>针对视频模型的并行计算…使用近似反向传播, 在标准的反向传播中, 模型每个计算步上的梯度和激活在时间上都是同步的</p>
+<p>每次前向传播的 activation 都需要存储, 直到进行下一次反向传播, 以防止层间(深度)的并行化. 作者使用 smooth, 冗余的输入流来开发更加有效的培训方案.</p>
+<p>只要有新的 activation(来自新的帧), 作者就 overwrite 网络的 activation, 来自 2 个通道的信息如果这样渐进地不断积累会破坏 gradient 和 activation 之间的对应关系, 从而导致理论上更加嘈杂的权重更新. 但作者实验发现，与标准同步反向传播相比，这种训练方式不但仍然会收敛, 而且还有更好的泛化性能.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/sideway_results.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/sideway_results_plot.png"></p>
+</div></div>
+
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Skeleton-Based Action Recognition With Shift Graph Convolutional Network</span></div>
+    <div class="hide-content"><p>怎么又是骨骼信息…跳过</p>
+</div></div>
+
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>SmallBigNet: Integrating Core and Contextual Views for Video Classification</span></div>
+    <div class="hide-content"><p>Yu Qiao 大佬组的, 题目借鉴了 SlowFast 那篇的名字.</p>
+<p>现在的方法都只从一个 view 去提取上下文信息, 作者认为这样是不对的, 所以需要 small view 和 big view 的结合.(感觉类似多尺度)</p>
+<p>对于每个现在的时间步, small view branch 用来学习核心的语义信息, big view branch 利用更大的感受野来为 small view branch 提供更好的视频特征, 通过不断聚合 big view 的上下文信息, small view 可以学到更加 robust and discriminative 的特征</p>
+<p>为了消除过拟合, 作者让 small view branch 和 big view branch 的卷积核共享参数.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/smallbig_view_motivation.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/small_big_block.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/small_big_result_kinetics.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/small_big_result_sth_sth.png"></p>
+</div></div>
+
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Spatiotemporal Fusion in 3D CNNs: A Probabilistic View</span></div>
+    <div class="hide-content"><p>以前的时空融合方法都是专门设计的, 但这些方法只能在有限的融合策略上对 model-level 进行分析</p>
+<p>本文将时空融合策略转换到概率空间来做, 这样就能对各种融合方式进行 network-level 进行评估, 而无需分别对它们进行训练</p>
+<p>此外, 还能得到更加细粒度的信息, 并提出了一种新的融合策略, 达到了 SOTA 的效果.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/spatioTemporal_fusion_results.png"></p>
+</div></div>
+
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Speech2Action: Cross-Modal Supervision for Action Recognition</span></div>
+    <div class="hide-content"><p>利用对话来做动作识别, 感觉还是蛮有意思, 牛津的 VGG 组做的. 不详细介绍.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/speech2actoin.png"></p>
+</div></div>
+
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>TEA: Temporal Excitation and Aggregation for Action Recognition</span></div>
+    <div class="hide-content"><p>王利民老师组的工作</p>
+<p>分别用 motion excitation (ME) module 和 multiple temporal aggregation (MTA) module 来捕获 short-range 和 long-range 的 temporal evolution.</p>
+<p>对于 short-range 的 motion 建模, ME 模块根据时空特征来计算 feature-level 的时序差异, 然后利用这个差异来激活 motion-sensitive 的 channels.</p>
+<p>之前文章中的 long-range 时序聚合是通过堆叠大量 local temporal convolutions 来实现, 每个 local temporal convolution 一次处理一个 local temporal window.</p>
+<p>MTA 将 local convolution 变为一组子卷积, 从而形成分层的残差结构, 在不引入其他参数的情况下, 使用一组子卷积来提取特征, 并且每个帧都可以和相邻的帧完成时间聚合, 这样最终扩大了时间维度上的感受野, 使其能够对 distant frames 的关系进行建模.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/me_and_mta.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/TEA_pipeline.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/TEA_result_kinetics.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/TEA_result_sth_sth_v1.png"></p>
+</div></div>
+
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Temporal Pyramid Network for Action Recognition</span></div>
+    <div class="hide-content"><p>周博磊和商汤那边的工作</p>
+<p>visual tempo(视觉节奏??) 表征了动作的动态和时间尺度, 所以对 visual tempo 进行建模有助于对这些动作的识别</p>
+<p>之前的工作通常利用对原始视频在多个比率下采样和建造一个 input-level 的 frame pyramid 来捕获 visual tempo 特征, 这种方法需要计算巨大的多分支网络来处理. 本文在 feature-level 上提出了一种通用的时间金字塔网络, 可以以即插即用的方式灵活地集成到 2D 或者 3D Backbone 中.</p>
+<p>TPN 的 2 个基本组成部分是要素的来源和融合, 它们形成了一种特征多级结构, 以学习不同 tempo 的 action</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/TPN_pipeline.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/TPN_result_kinetics.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/TPN_result_sth_sth.png"></p>
+</div></div>
+
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Unsupervised Learning From Video With Deep Neural Embeddings</span></div>
+    <div class="hide-content"><p>Stanford 和 MIT 的联合作品…</p>
+<p>提出了一个框架用于在视频输入上训练 deep nonlinear 的 embedding, 通过学习将相似视频识别和分组在一起的 embedding dimension，同时在embedding space中将本质上不同的视频推开，VIE可以捕获视频固有的强大统计结构，而无需外部注释标签。</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/VIE_result_ucf_and_hmdb.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/VIE_results.png"></p>
+</div></div>
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Video Modeling With Correlation Networks</span></div>
+    <div class="hide-content"><p>这篇文章基于可学习的相关操作提出了对 3D 卷积/双流网络 的一种替代方法, 这种相关操作能在网络的不同层的特征图上建立帧到帧的匹配, 这种结构能融合时序匹配信息和传统的 2D 外观信息, 相比于 3D CNN 和双流网络都有一定的竞争力, 且能更快地训练.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/correlation_operator.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/correlationnet_results.png"></p>
+</div></div>
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>X3D: Expanding Architectures for Efficient Video Recognition</span></div>
+    <div class="hide-content"><p>通过从空间, 时间, 宽度和深度维度来逐渐拓展一个 2D CNN 来实现精度和效率的 tradeoff, 可以看成是 3D 版本的 EfficientNet, 比简单地把 EfficientNet 的 2D 换成 3D 效果好了太多</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/x3d_expand_process.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/x3d_result_kinetics.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/x3d_result_charades_and_compare_to_efficient3d.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/x3d_result_ava.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/x3d_result_acc_and_flop.png"></p>
+</div></div>
+
+
+
+
+<h1 id="ICCV’19"><a href="#ICCV’19" class="headerlink" title="ICCV’19"></a>ICCV’19</h1><div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Bayesian Hierarchical Dynamic Model for Human Action Recognition</span></div>
+    <div class="hide-content"><p>通过使用贝叶斯框架, 模型参数能够在不同数据序列之间变化, 这增强了模型适应类内变化(空间和时间上)的能力.</p>
+<p>同时生成学习过程允许每个动作类别保留独特的 dynamic pattern, 通过贝叶斯推断, 我们能量化分类中的不确定性, 从而帮助进行决策.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/HDM_results.png"></p>
+</div></div>
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>EPIC-Fusion: Audio-Visual Temporal Binding for Egocentric Action Recognition</span></div>
+    <div class="hide-content"><p>聚焦于用多模态来进行动作识别, 提出了一种结构来进行多模态的时序绑定, 即在一个时序 offset 范围内对模态进行绑定??? ( the combination of modalities within a range of temporal offsets)</p>
+<p>同时使用 RGB, 光流和 audio 来训练然后融合, 这里不同模态的数据在时序聚合之前就进行了融合, 随着时间来不断共享模态和融合权重.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/epic_fusion_result.png"></p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Generative Multi-View Human Action Recognition</span></div>
+    <div class="hide-content"><p>multi-view 动作识别旨在整合来自不同 view 的信息, 以此来提高分类信息. 感觉是挖坑, 过</p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Grouped Spatial-Temporal Aggregation for Efficient Action Recognition</span></div>
+    <div class="hide-content"><p>以前方法通过把 3D CNN 分解为空间 CNN 和时间 CNN 来降低复杂度, 本文提出把 feature channel 并行地分组为 spatial 和 temporal 这两种, 这种解耦方式能让这 2 个组专注于静态和动态信息.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/3_types_of_networks.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/gst_structure.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/GST_result_sth_sth.png"></p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Hallucinating IDT Descriptors and I3D Optical Flow Features for Action Recognition With CNNs</span></div>
+    <div class="hide-content"><p>尽管使用了 RGB 和光流, 但 I3D 模型(以及其他一些模型)将其输出和 Improved Dense Trajectory (DIT) 结合在一起并通过 Bag-of-Words 和 Fisher Vector 提取 low-level 视频描述子的一个编码. 这种 CNN 和手工特征的融合是非常耗时间的.</p>
+<p>所以作者提出了一种端到端的可训练的网络, 用网络中的每个 stream 来学习 IDT-based 的 BoW/FV 表示</p>
+<p>每个 stream 在最后一个 1D 卷积之前获取 I3D 的特征图, 然后将这些特征图转化为 BoW/FV 的表征.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/hallucinate_IDT_pipeline.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/ADL_I3D_results.png"></p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Multi-Agent Reinforcement Learning Based Frame Sampling for Effective Untrimmed Video Recognition</span></div>
+    <div class="hide-content"><p>用强化学习来更好地对视频中的 frames 进行采样.</p>
+<p>把 frame 的采样看成是多个并行的马尔科夫决策过程, 通过不断对初始化采样进行调整来挑选 frame/clip, 然后用 multiple-agent 的 RL 来解决这个问题.</p>
+<p>本文的 multiple-agent RL 由一个 RNN-based 的 context-aware observation network, 一个策略网络和一个分类网络组成.</p>
+<p>观察网络能联合地对 agents 周围的上下文信息以及特定 agent 的历史状态进行建模, 策略网络能在时间步都能在预定义的 action space 中生成概率分布, 分类网络用于 reward 计算及输出最终结果.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/RL_sampling_structure.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/RL_sampling_pipeline.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/RL_sampling_results_activity.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/RL_sampling_map_vs_num_of_frames.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/RL_sampling_result_activity_1.3.png"></p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>SCSampler: Sampling Salient Clips From Video for Efficient Action Recognition</span></div>
+    <div class="hide-content"><p>也是针对如何进行有效地采样来做的.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/scs_sampler_structure.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/scsample_results.png"></p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>SlowFast Networks for Video Recognition</span></div>
+    <div class="hide-content"><p>Kaiming He 的作品…一如既往地简洁有效. 有 2 个 pathway, 一个 low frame rate 的 slow pathway 用于捕获空间语义, 还有一个 high frame rate 的 fast pathway 以精细的 temporal resolution 来捕获运动信息.</p>
+<p>其中 Fast pathway 可以通过减少其通道容量来达到更加轻量的目的.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/slow_fast_structure.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/slow_fast_result_kinetics.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/slow_fast_result_kinetics600.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/slow_fast_ablation.png"></p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>STM: SpatioTemporal and Motion Encoding for Action Recognition</span></div>
+    <div class="hide-content"><p>有的论文用 3D CNN 来提取时空信息, 再加上用光流来提取动作信息, 这篇文章是想用 2D CNN 来 encode 这 2 种特征.</p>
+<p>首先提出了一种 STM block, 用 Channel-wise SpatioTemporal Module (CSTM) 和 Channel-wise Motion Module (CMM) 来分别有效地提取时空特征和动作特征.</p>
+<p>然后把原始的残差块用 STM block 来替代.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/STM_structure.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/STM_pipeline.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/stm_result_sth_sth.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/stm_result_kinetics.png"></p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>TSM: Temporal Shift Module for Efficient Video Understanding</span></div>
+    <div class="hide-content"><p>韩松大佬组的工作</p>
+<p>提出一种 Temporal Shift Module 以 2D CNN 的计算复杂度来实现 3D CNN 的性能, TSM 在时序维度上 shift 部分 channel, 以便在相邻帧之间交换信息, TSM 能很方便地插入 2D CNN 中而无需增加额外参数. 作者也把 TSM 用于 online 环境下, 实现了实时且低能耗的 online video recognition 以及 video object detection.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/TSM_structure.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/resudial_shift.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/uni-directional_TSM.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/TSM_result_sth.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/TSM_result_acc_and_flops.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/TSM_result_acc_and_latency.png"></p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Video Classification With Channel-Separated Convolutional Networks</span></div>
+    <div class="hide-content"><p>3D 分组卷积</p>
+<p>作者通过实验发现以下 3 点:</p>
+<ol>
+<li>通道交互的数量对 3D CNN 的准确性起重要作用</li>
+<li>通过对通道交互和时空交互进行分解来分解 3D CNN 是一个好方法, 可以在降低计算成本的同时提高准确性</li>
+<li>通道分离的 3D CNN 其实是一种正则化形式, 这使得训练精度较低但测试精度较高.</li>
+</ol>
+<p>根据上面的发现作者设计了一种网络结构, 并且表现 SOTA.</p>
+<p>先回顾下什么是分组卷积:</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/2d_group_conv.png"></p>
+<p><strong>然后是 channel-separated convolution blocks</strong></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/channel_separated_conv.png"></p>
+<p><strong>最后看下 3D CNN 的残差结构</strong></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/resnet_simple_block.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/resnet_bottlenect.png"></p>
+<p><strong>看下最后的结果</strong></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/csn_result_kinetics.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/csm_tradeoff_glops_acc.png"></p>
+</div></div>
+
+
+<h1 id="CVPR’19"><a href="#CVPR’19" class="headerlink" title="CVPR’19"></a>CVPR’19</h1><div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Action Recognition From Single Timestamp Supervision in Untrimmed Videos</span></div>
+    <div class="hide-content"><p>还是针对数据标注的问题, 本文提出使用单个时间戳作为监督的方式来进行训练, 用这些时间戳初始化的采样分布来替换标注昂贵的动作边界, 然后用分类器的响应来迭代更新采样分布.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/single_timestamp_idea.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/timestamp_result_thumos.png"></p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Action4D: Online Action Recognition in the Crowd and Clutter</span></div>
+    <div class="hide-content"><p>作者试图在混乱且拥挤的环境中识别每个人的动作.</p>
+<p>首先提出一种新的方法来用 4D 表征对人进行实时跟踪, 然后建立了一个新的网络用于识别每个被跟踪的人的动作.</p>
+<p>为了进一步改善模型性能还设计了一个自适应的 3D 卷积核一个时间特征学习目标(目标函数???)</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/action4d_example.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/action4d_result.png"></p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Actional-Structural Graph Convolutional Networks for Skeleton-Based Action Recognition</span></div>
+    <div class="hide-content"><p>图卷积+骨架信息.</p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>AdaFrame: Adaptive Frame Selection for Fast Video Recognition</span></div>
+    <div class="hide-content"><p>也是考虑如何挑选更好的 frames 用于训练.</p>
+<p>提出了一个增强了全局记忆的 LSTM 网络, 该记忆提供了上下文信息, 用于搜索应该使用哪些帧.</p>
+<p>利用策略梯度来训练, AdaFrame 生成预测, 确定下一步应该观察哪一个帧, 并计算这个帧的实用性(即预期的 reward), 测试时利用预测的实用性来进行自适应的超前推理, 从而在不降低准确性的情况下降低了总的计算成本.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/adaframe_pipeline.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/adaframe_results.png"></p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>An Attention Enhanced Graph Convolutional LSTM Network for Skeleton-Based Action Recognition</span></div>
+    <div class="hide-content"><p>骨架信息, 过.</p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Collaborative Spatiotemporal Feature Learning for Video Action Recognition</span></div>
+    <div class="hide-content"><p>现有的方法要么独立地学习时间和空间特征(C2D), 要么在参数不受限的情况下进行联合学习(C3D)</p>
+<p>本文通过对可学习的参数添加一种权重共享的约束来协同地对时空特征进行 encode.</p>
+<p>具体来说分别沿视频数据的三个正交视图做 2D 卷积, 分别学习空间外观信息和时序运动信息, 通过共享不同 view 的卷积核, 可以协同地学习空间和时间特征, 并且互相受益.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/three_view_of_a_video.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/cost_structure.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/cost_residual_structure.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/cost_result_kinetics.png"></p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Convolutional Relational Machine for Group Activity Recognition</span></div>
+    <div class="hide-content"><p>利用图像或者视频中每个个体之间的空间关系信息来进行 group activity recognition.它基于个人和团体活动来产生中间层次的空间表征(activity map)</p>
+<p>然后用一个多级的 refine 模块来减少 activity map 中错误的预测, 最终用一个聚合模块使用 refine 完的信息进行最终预测</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/activity_map_example.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/CRM_pipeline.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/CRM_results.png"></p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>DDLSTM: Dual-Domain LSTM for Cross-Dataset Action Recognition</span></div>
+    <div class="hide-content"><p>做 cross-dataset 的动作识别…我总感觉这些任务就是在挖坑和灌水…</p>
+<p>目前 domain adaption 在 CNN 里面很火, 但还没人研究 RNN 中的 domain alignment, 和空间特征类似, 时序特征也可以在源域和目标域中共同学习和对齐.</p>
+<p>本文介绍了一种 Dual-Domain LSTM 用于从 target domain 和 source domain 中学习时间依赖性, 它对 input-to-hidden 和 hidden-to-hidden 的权重进行 cross-contaminated 的 batch normalization, 并为单层和多层的 LSTM 体系结构学习 cross-contaminated 的参数.</p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>DMC-Net: Generating Discriminative Motion Cues for Fast Compressed Video Action Recognition</span></div>
+    <div class="hide-content"><p>最近的工作有使用 motion vector 和 residual 来表示 motion, 因为光流计算非常耗时. 但这种方法由于 motion vector 是有噪声的, 再加上分辨率很低, 导致了学习的 motion representation 缺乏 discriminative.</p>
+<p>作者提出了一种轻量级的生成器, 用于减少 motion vector 中的噪声并且捕捉更好的 motion details. 由于光流是更加精准的动作标注, 因此在下游分类任务上通过一个 reconstruction loss 和一个 adversarial loss 来近似光流.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/DMCNet_pipieline.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/DMCNet_results.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/DMCNet_compare_and_flow_estimate.png"></p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Efficient Video Classification Using Fewer Frames</span></div>
+    <div class="hide-content"><p>由于模型对视频的每一帧都要处理, 所以即使内存占用量很小, 浮点运算的数量依然很大, 作者考虑用知识蒸馏的方法来解决这个问题.</p>
+<p>具体的想法是用一个 teacher model 查看视频中的所有帧, 训练一个 student model 只查看视频中的一小部分帧, 这和通常的蒸馏有点不同, 在通常的蒸馏中, teacher model 和 student model 都查看所有的帧, 只是 student model 参数比较少.</p>
+<p>作者在 3 种视频分类的模型上做了实验, 都表明这种方式是可行的:</p>
+<ol>
+<li>recurrent models</li>
+<li>cluster-and-aggregate models</li>
+<li>memory-efficient cluster-and-aggregate models</li>
+</ol>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/teacher_student_network_pipeline.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/performance_of_teacher_student_model.png"></p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Large-Scale Weakly-Supervised Pre-Training for Video Action Recognition</span></div>
+    <div class="hide-content"><p>本文对使用大量网络视频进行预训练视频模型以进行动作识别的任务进行了深入研究。尽管有嘈杂的视频和标签, 但在这些大规模数据集下进行预训练的模型能极大改善在视频识别数据集上的表现, 所以作者研究了弱监督动作识别数据集构建过程中的 3 个问题:</p>
+<ol>
+<li>由于动作涉及和对象的交互, 应该如何构造 verb-object 的预训练 label space 以最大程度地使迁移学习受益?</li>
+<li>基于 frame 的模型在动作识别方向表现出色, 预训练对良好的图像特征是否充分? 或者对时空特征进行的预训练是否对最佳的迁移学习有价值?</li>
+<li>相对于短视频而言, 长视频中的动作通常定位较差, 在弱监督的情况下, 如何选择最佳的视频片段以获得最佳性能?</li>
+</ol>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Learning Actor Relation Graphs for Group Activity Recognition</span></div>
+    <div class="hide-content"><p>用图对每个 actors 之间的交互进行建模, 再用图卷积来实现 group activity recognition.</p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Less Is More: Learning Highlight Detection From Video Duration</span></div>
+    <div class="hide-content"><p>这篇文章应该是属于 action detection 里面的…在这讲了吧…</p>
+<p>做的是无监督的动作检测, 把整段视频的持续时间看成隐式的监督信号, 因为相比于长视频, 短视频中的视频片段更可能成为 highlight, 鉴于此作者引入了一种新的排名框架, 优先考虑较短视频中的片段, 同时适当考虑(未标记)训练数据集中的固有噪声.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/unsupervision_action_detection_result_youtube_highlight.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/unsupervision_result_tvsum.png"></p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>LSTA: Long Short-Term Attention for Egocentric Action Recognition</span></div>
+    <div class="hide-content"><p>提出将 Long Short-Term Attention 作为一种机制关注来自相关空间的部分, 同时 attention 在整个视频序列中被平稳的跟踪.</p>
+<p>光看摘要不太明白这篇论文想干啥.</p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>MARS: Motion-Augmented RGB Stream for Action Recognition</span></div>
+    <div class="hide-content"><p>引入 2 种方法来训练在 RGB frames 上运行的 3D CNN, 使其模拟光流, 从而在减少光流存在的复杂计算.</p>
+<p>首先通过最小化基于特征的损失, 重新产生了接近光流的 motion flow, 为了同时有效地使用外观和运动信息, 使用基于特征的损失和标注交叉熵损失的线性组合来进行训练, 以进行动作识别.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/mars_results.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/mars_result_kinetics.png"></p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Out-Of-Distribution Detection for Generalized Zero-Shot Action Recognition</span></div>
+    <div class="hide-content"><p>zero-shot learning…我还是觉得这些玩意都是挖坑和灌水, 比较有现实意义的也就全监督和弱监督, 无监督都很不可能…过</p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>PA3D: Pose-Action 3D Machine for Video Recognition</span></div>
+    <div class="hide-content"><p>用于动作识别的 3D 模型大多建立在 RGB + 光流的基础上, 但这种方式不能充分提取 pose 动态信息 ??? 这个结论你是怎么知道的?</p>
+<p>为了解决这个问题作者提出了一个 pose-action 3d 机制, 能用一个统一的 3D framework 有效地编码多个 pose 模态, 从而学习时空 pose 以进行动作识别.</p>
+<p>具体的说, 提出了一种时空姿势卷积来在 frames 中聚合空间的 poses. 与经典的时间卷积不同，本文的操作可以显式地学习 pose motion 来分辨人的动作.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/pa3d_structure.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/temporal_pose_convolution.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/tpc_results.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/pa3d_result_jhmdb.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/pa3d_results_hmdb_and_charades.png"></p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Representation Flow for Action Recognition</span></div>
+    <div class="hide-content"><p>摘要也没太看懂, 应该是想用 CNN 来学习类似光流的 flow, 只是这个 flow 能在任何表征上得到, 而非光流一样只能在 RGB 表征上得到.</p>
+<p>提出一种可微分的 layer 来捕获任何任何表征通道中的 flow, 以进行动作识别, 以端到端的方式和其他 CNN 模型参数一起学习, 作者还通过堆叠多个 representation flow layers 来表示 flow of flow 的概念.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/representation_flow.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/flow_layer.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/fcf_results.png"></p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Skeleton-Based Action Recognition With Directed Graph Neural Networks</span></div>
+    <div class="hide-content"><p>骨骼数据的…跳过</p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Timeception for Complex Action Recognition</span></div>
+    <div class="hide-content"><p>本文回顾了传统的对 activity 的定义并将其限制为 “复杂动作”, 即用于特定目的的, 具有弱时间 pattern 的一组单一动作. 目前的算法使用固定 kernel size 的时空 3D 卷积, 其过于僵化以致无法在复杂的时间范围内捕获变化, 而且这种方式对于 long-range 的时间建模而言是不足够的.</p>
+<p>本文提出了一种多尺度的 temporal 卷积, 并且降低了 3D 卷积的计算复杂度, 这种方式的结果是产生了 Timeception 的卷积层, 使得可以处理 minute-long 的时间 pattern, 比最佳的方法能处理的时间大约长了 8 倍.</p>
+<p>作者还证明了 Timeception 学习 long-range 时间依赖性并容忍复杂动作的时间范围.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/timeception_layer.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/timeception_result.png"></p>
+</div></div>
+
+
+
+
+
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Two-Stream Adaptive Graph Convolutional Networks for Skeleton-Based Action Recognition</span></div>
+    <div class="hide-content"><p>骨骼数据的…跳过</p>
+</div></div></div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">Ming Li</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://coderming.cn/2020/10/02/Action-Recognition/">https://coderming.cn/2020/10/02/Action-Recognition/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Video/">Video</a><a class="post-meta__tags" href="/tags/Action/">Action</a></div><div class="post_share"><div class="social-share" data-image="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/avatar.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> Donate<div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://limingcv.coding.net/p/images/d/images/git/raw/master/reward/wechat.png" target="_blank"><img class="post-qr-code-img" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/reward/wechat.png" alt="WeChat"/></a><div class="post-qr-code-desc">WeChat</div></li><li class="reward-item"><a href="https://qr.alipay.com/fkx12431y6k0soy7vokzi19" target="_blank"><img class="post-qr-code-img" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/reward/alipay.jpg" alt="AliPay"/></a><div class="post-qr-code-desc">AliPay</div></li></ul></div></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/10/12/Deformable-CNNs/"><img class="prev-cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Deformable-CNNs/avatar.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">Deformable Convolutional Networks</div></div></a></div><div class="next-post pull-right"><a href="/2020/10/01/Action-Localization/"><img class="next-cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/temporal_action_localization.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">Action Localization</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2020/10/01/Action-Localization/" title="Action Localization"><img class="cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/temporal_action_localization.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-10-01</div><div class="title">Action Localization</div></div></a></div></div></div></article></main><footer id="footer" style="background-image: url(https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/avatar.png)"><div id="footer-wrap"><div class="copyright">&copy;2020 By Ming Li</div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">Local search</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>Powered by</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a></div></div></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div></div></body></html>

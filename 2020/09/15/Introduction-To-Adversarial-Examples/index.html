@@ -1,0 +1,218 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Introduction to Adversarial Examples | Ming</title><meta name="keywords" content="Adversarial"><meta name="author" content="Ming Li"><meta name="copyright" content="Ming Li"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="Basic knowledgeDifferent types of adversarial example attacksClassified by attack mode White-boxThe attacker can get the algorithm used by machine learning and the parameters used by the algorithm. Th">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Introduction to Adversarial Examples">
+<meta property="og:url" content="https://coderming.cn/2020/09/15/Introduction-To-Adversarial-Examples/index.html">
+<meta property="og:site_name" content="Ming">
+<meta property="og:description" content="Basic knowledgeDifferent types of adversarial example attacksClassified by attack mode White-boxThe attacker can get the algorithm used by machine learning and the parameters used by the algorithm. Th">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Adversarial-Examples/avatar.png">
+<meta property="article:published_time" content="2020-09-15T07:48:57.000Z">
+<meta property="article:modified_time" content="2020-09-20T02:57:16.350Z">
+<meta property="article:author" content="Ming Li">
+<meta property="article:tag" content="Adversarial">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Adversarial-Examples/avatar.png"><link rel="shortcut icon" href="/img/avatar.jpg"><link rel="canonical" href="https://coderming.cn/2020/09/15/Introduction-To-Adversarial-Examples/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  hexoversion: '5.2.0',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: true,
+  postUpdate: '2020-09-20 10:57:16'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {
+  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }
+})()</script><meta name="generator" content="Hexo 5.2.0"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">Articles</div><div class="length_num">18</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">Tags</div><div class="length_num">14</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">Categories</div><div class="length_num">7</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/images/"><i class="fa-fw fas fa-images"></i><span> Images</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div></div></div></div><div id="body-wrap"><div id="web_bg"></div><div id="sidebar"><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Basic-knowledge"><span class="toc-number">1.</span> <span class="toc-text">Basic knowledge</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Different-types-of-adversarial-example-attacks"><span class="toc-number">1.1.</span> <span class="toc-text">Different types of adversarial example attacks</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Classified-by-attack-mode"><span class="toc-number">1.1.1.</span> <span class="toc-text">Classified by attack mode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Classified-by-attack-target"><span class="toc-number">1.1.2.</span> <span class="toc-text">Classified by attack target</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Classified-by-attack-method"><span class="toc-number">1.1.3.</span> <span class="toc-text">Classified by attack method</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Classified-by-the-way-the-adversarial-examples-generated"><span class="toc-number">1.1.4.</span> <span class="toc-text">Classified by the way the adversarial examples generated</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Different-types-of-defense"><span class="toc-number">1.2.</span> <span class="toc-text">Different types of defense</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Domains-in-Defense"><span class="toc-number">1.3.</span> <span class="toc-text">Domains in Defense</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Some-Attack-Methods"><span class="toc-number">2.</span> <span class="toc-text">Some Attack Methods</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#FGSD-Fast-gradient-sign-method"><span class="toc-number">2.1.</span> <span class="toc-text">FGSD(Fast gradient sign method)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#FGM-fast-gradient-method"><span class="toc-number">2.2.</span> <span class="toc-text">FGM(fast gradient method)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#IFGSD-Iterative-gradient-sign-Method"><span class="toc-number">2.3.</span> <span class="toc-text">IFGSD(Iterative gradient sign Method)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DeepFool"><span class="toc-number">2.4.</span> <span class="toc-text">DeepFool</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#C-amp-W-Carlini-amp-Wagner"><span class="toc-number">2.5.</span> <span class="toc-text">C&amp;W(Carlini &amp; Wagner)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Optimization-based-method"><span class="toc-number">2.6.</span> <span class="toc-text">Optimization based method</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Some-Defend-Methods"><span class="toc-number">3.</span> <span class="toc-text">Some Defend Methods</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Adversarial-Training"><span class="toc-number">3.1.</span> <span class="toc-text">Adversarial Training</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Defensive-Knowledge-Distillation"><span class="toc-number">3.2.</span> <span class="toc-text">Defensive Knowledge Distillation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Denoise"><span class="toc-number">3.3.</span> <span class="toc-text">Denoise</span></a></li></ol></li></ol></div></div></div><header class="post-bg" id="page-header" style="background-image: url(https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Adversarial-Examples/avatar.png)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Ming</a></span><span id="menus"><div id="search_button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> Search</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/images/"><i class="fa-fw fas fa-images"></i><span> Images</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div></div><span class="close" id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">Introduction to Adversarial Examples</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2020-09-15T07:48:57.000Z" title="Created 2020-09-15 15:48:57">2020-09-15</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2020-09-20T02:57:16.350Z" title="Updated 2020-09-20 10:57:16">2020-09-20</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Adversarial/">Adversarial</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word count:</span><span class="word-count">1.4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading time:</span><span>8min</span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h1 id="Basic-knowledge"><a href="#Basic-knowledge" class="headerlink" title="Basic knowledge"></a>Basic knowledge</h1><h2 id="Different-types-of-adversarial-example-attacks"><a href="#Different-types-of-adversarial-example-attacks" class="headerlink" title="Different types of adversarial example attacks"></a>Different types of adversarial example attacks</h2><h3 id="Classified-by-attack-mode"><a href="#Classified-by-attack-mode" class="headerlink" title="Classified by attack mode"></a>Classified by attack mode</h3><ol>
+<li>White-box<br>The attacker <strong>can get the algorithm used by machine learning and the parameters used by the algorithm</strong>. The attacker can interact with the machine learning system in the process of generating adversarial attack data.</li>
+<li>Black-box<br>The attacker <strong>does not know the algorithms and parameters used in machine learning</strong>, but the attacker can still interact with the machine learning system. For example, he can pass in any input to observe the output and judge the output.</li>
+</ol>
+<p>In practical applications, the difference between the two is reflected in: Model A is used to generate adversarial examples, and then model B is attacked. <strong>When model A and model B are the same model, it is a white box attack; when model A and model B are not the same model, it is a black box attack.</strong></p>
+<h3 id="Classified-by-attack-target"><a href="#Classified-by-attack-target" class="headerlink" title="Classified by attack target"></a>Classified by attack target</h3><ol>
+<li><p>Non-Target<br>As long as the attack is successful, the generated adversarial examples <strong>can be predicted to any class.</strong></p>
+</li>
+<li><p>Target<br>Not only the attack is required to be successful, but also the generated <strong>adversarial examples belong to a specific class.</strong></p>
+</li>
+</ol>
+<h3 id="Classified-by-attack-method"><a href="#Classified-by-attack-method" class="headerlink" title="Classified by attack method"></a>Classified by attack method</h3><ol>
+<li>Individual<br>Generate adversarial examples by adding <code>different</code> perturbation for each input image.</li>
+<li>Universal<br>Generate adversarial examples by adding <code>same</code> perturbation for each input image.</li>
+</ol>
+<h3 id="Classified-by-the-way-the-adversarial-examples-generated"><a href="#Classified-by-the-way-the-adversarial-examples-generated" class="headerlink" title="Classified by the way the adversarial examples generated"></a>Classified by the way the adversarial examples generated</h3><ol>
+<li>Generation-based</li>
+<li>Gradient-based</li>
+<li>Optimization-based</li>
+</ol>
+<p>The distinction among these generation methods will be update in a week (￣▽￣)~* (maybe later…)</p>
+<h2 id="Different-types-of-defense"><a href="#Different-types-of-defense" class="headerlink" title="Different types of defense"></a>Different types of defense</h2><ol>
+<li>Adversarial training: Add adversarial examples to training dataset.</li>
+<li>Gradient mask: Mask the gradient of model, thus attacker cannot get information about gradient.</li>
+<li>Randomization: Apply random layer or random variables to original model, making the original model have randomness to better tolerate noise.</li>
+<li>Denoising: Before the input model is judged, the current adversarial samples are denoised first, and the information that causes disturbances is eliminated.</li>
+<li>Model compression: Can be regarded as a kind of Denoising method</li>
+</ol>
+<h2 id="Domains-in-Defense"><a href="#Domains-in-Defense" class="headerlink" title="Domains in Defense"></a>Domains in Defense</h2><ol>
+<li>Verification(measure how robust a model is)</li>
+</ol>
+<ul>
+<li>The smallest ball where no adversarial example exists</li>
+<li>The radius of the ball</li>
+</ul>
+<ol start="2">
+<li>Detection</li>
+</ol>
+<ul>
+<li>Binary classification</li>
+</ul>
+<ol start="3">
+<li>Robust defense</li>
+</ol>
+<ul>
+<li>Obfuscated Gradients Give a False Sense of Security: Circumventing Defenses to Adversarial Examples. <strong>ICML, 2018  Best Paper</strong></li>
+<li>Adversarial training</li>
+</ul>
+<h1 id="Some-Attack-Methods"><a href="#Some-Attack-Methods" class="headerlink" title="Some Attack Methods"></a>Some Attack Methods</h1><h2 id="FGSD-Fast-gradient-sign-method"><a href="#FGSD-Fast-gradient-sign-method" class="headerlink" title="FGSD(Fast gradient sign method)"></a><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1412.6572.pdf">FGSD(Fast gradient sign method)</a></h2><p>This is a gradient-based algorithm to generate adversarial examples, we need to maximize the loss function $J(x^*, y)$ to get adversarial example $x^*$, $J$ is the loss function, which be used to measure the classification error.(usually cross-entropy loss).</p>
+<p>We want to maximize the value of $J$ because we want the adversarial example won’t be class $y$ any more. During this whole optimization process, we need to constrain $L_{\infty}$ with $\left|x^{<em>}-x\right|_{\infty} \leq \epsilon$, which means the error between input image and adversarial image must be within a certain and small range. So we can generate adversarial example $x^</em>$ by:<br>$$<br>\boldsymbol{x}^{*}=\boldsymbol{x}+\epsilon \cdot \operatorname{sign}\left(\nabla_{\boldsymbol{x}} J(\boldsymbol{x}, y)\right)<br>$$</p>
+<h2 id="FGM-fast-gradient-method"><a href="#FGM-fast-gradient-method" class="headerlink" title="FGM(fast gradient method)"></a>FGM(fast gradient method)</h2><p>Improve FGSD to make sure that can satisfy the $L_2 \space norm$:  $L_{\infty}$ with $\left|x^{<em>}-x\right|_{2} \leq \epsilon$<br>$$\boldsymbol{x}^{</em>}=\boldsymbol{x}+\epsilon \cdot \frac{\nabla_{\boldsymbol{x}} J(\boldsymbol{x}, y)}{\left|\nabla_{\boldsymbol{x}} J(\boldsymbol{x}, y)\right|_{2}}$$</p>
+<h2 id="IFGSD-Iterative-gradient-sign-Method"><a href="#IFGSD-Iterative-gradient-sign-Method" class="headerlink" title="IFGSD(Iterative gradient sign Method)"></a><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1607.02533.pdf">IFGSD(Iterative gradient sign Method)</a></h2><p>Also be regarded as an extension of FGSD, specifically, it utilizes a small value $\alpha$ to update $x^*$ step by step, usually $\alpha = \epsilon/T$, $T$ is the iteration number.<br>$$\boldsymbol{x}<em>{0}^{*}=\boldsymbol{x}, \quad \boldsymbol{x}</em>{t+1}^{<em>}=\boldsymbol{x}_{t}^{</em>}+\alpha \cdot \operatorname{sign}\left(\nabla_{\boldsymbol{x}} J\left(\boldsymbol{x}_{t}^{*}, y\right)\right)$$</p>
+<p>The results show that IFGSD is better than FGSD in white-box attacks.</p>
+<h2 id="DeepFool"><a href="#DeepFool" class="headerlink" title="DeepFool"></a><a target="_blank" rel="noopener" href="https://www.cv-foundation.org/openaccess/content_cvpr_2016/html/Moosavi-Dezfooli_DeepFool_A_Simple_CVPR_2016_paper.html">DeepFool</a></h2><p>Consider a binary classification situation on the hyperplane(超平面)<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Adversarial-Examples/deepfool_binary_classification.png"></p>
+<p>for an input $x_0$, if we want to change its label $f(x)&gt;0$ to the wrong label $f(x) &lt; 0$, the smallest perturbation we need is “move” $x_0$ to the decision border on the hyperplane.<br>$$\begin{aligned}<br>\boldsymbol{r}<em>{*}\left(\boldsymbol{x}</em>{0}\right) &amp;:=\arg \min |\boldsymbol{r}|<em>{2} \<br>&amp; \text { subject to } \operatorname{sign}\left(f\left(\boldsymbol{x}</em>{0}+\boldsymbol{r}\right)\right) \neq \operatorname{sign}\left(f\left(\boldsymbol{x}<em>{0}\right)\right) \<br>&amp;=-\frac{f\left(\boldsymbol{x}</em>{0}\right)}{|\boldsymbol{w}|_{2}^{2}} \boldsymbol{w}<br>\end{aligned}$$</p>
+<p>Multi-classification problems are similar solutions:<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Adversarial-Examples/deepfool_multi_cls.png"></p>
+<h2 id="C-amp-W-Carlini-amp-Wagner"><a href="#C-amp-W-Carlini-amp-Wagner" class="headerlink" title="C&amp;W(Carlini &amp; Wagner)"></a><a target="_blank" rel="noopener" href="https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=7958570">C&amp;W(Carlini &amp; Wagner)</a></h2><p>C&amp;W is similar to IFGSD, they are the same iterative attack algorithm, searching the smallest perturbation $r_n$ with the help of a variable $w_n$:<br>$$r_{n}=\frac{1}{2}\left(\tanh \left(\omega_{n}+1\right)\right)-X_{n}$$</p>
+<p>The loss function based $w_n$ can be shown as:<br>$$\min <em>{\omega</em>{n}}\left|\frac{1}{2}\left(\tanh \left(\omega_{n}\right)+1\right)-X_{n}\right|+c \cdot f\left(\frac{1}{2}\left(\tanh \left(\omega_{n}\right)+1\right)\right)$$</p>
+<p>where<br>$$f\left(x^{\prime}\right)=\max \left(\max \left{Z\left(x^{\prime}\right)<em>{i}: i \neq t\right}-Z\left(x^{\prime}\right)</em>{t},-\kappa\right)$$</p>
+<p>$Z(x)_i$ is the Rockyster output of class $i$, we can control the confidence with which the misclassification occurs by adjusting $k$, the parameter $k$ encourages the solver to find an adversarial example $x’$ that will be classified as class $t$(not the true class) with high confidence.(通过调整 $k$ 来控制分类错误发生的置信度, $k$ 越大说明将对抗样本 $x’$ 分为错误类别 $t$ 的可能性越大).</p>
+<h2 id="Optimization-based-method"><a href="#Optimization-based-method" class="headerlink" title="Optimization based method"></a><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1312.6199.pdf">Optimization based method</a></h2><p>This kind of methods is aimed to minimize the distance between adversarial examples and input images on the premise that the attack can be achieved (make the classifier misclassify the adversarial sample)<br>$$\underset{\boldsymbol{x}^{<em>}}{\arg \min } \lambda \cdot\left|\boldsymbol{x}^{</em>}-\boldsymbol{x}\right|_{p}-J\left(\boldsymbol{x}^{*}, y\right)$$</p>
+<h1 id="Some-Defend-Methods"><a href="#Some-Defend-Methods" class="headerlink" title="Some Defend Methods"></a>Some Defend Methods</h1><h2 id="Adversarial-Training"><a href="#Adversarial-Training" class="headerlink" title="Adversarial Training"></a>Adversarial Training</h2><ol>
+<li>Turning adversarial examples into training dataset to train a robuster model.</li>
+<li>Regularize model with the prior knowledge of attack.</li>
+</ol>
+<p>As an example for method 2, if we know that attacker would use FGSM to attack model, we can add a regularization to the loss function to achieve adversarial training:<br>$$\tilde{J}(\boldsymbol{\theta}, \boldsymbol{x}, y)=\alpha J(\boldsymbol{\theta}, \boldsymbol{x}, y)+(1-\alpha) J\left(\boldsymbol{\theta}, \boldsymbol{x}+\epsilon \operatorname{sign}\left(\nabla_{\boldsymbol{x}} J(\boldsymbol{\theta}, \boldsymbol{x}, y)\right)\right.$$</p>
+<h2 id="Defensive-Knowledge-Distillation"><a href="#Defensive-Knowledge-Distillation" class="headerlink" title="Defensive Knowledge Distillation"></a>Defensive Knowledge Distillation</h2><p>There is a teacher model and a student model in knowledge distillation. We want to transfer the teacher model’s(big model) knowledge to the student model(small model).</p>
+<p>In defensive knowledge distillation, first train a model with input images $x$ and labels $y$, thus we can get a probability distribution $F(x)$, then replace $y$ with $F(x)$ to train a new model but have same architecture and same temperature. Then classify samples with the whole model.<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Adversarial-Examples/defensive_kd.png"></p>
+<h2 id="Denoise"><a href="#Denoise" class="headerlink" title="Denoise"></a>Denoise</h2><p>The idea of denoising is to make the adversarial example s closer to the original sample, which is equivalent to removing the noise added to generate the adversarial sample and restoring it to the original sample as much as possible, so that the adversarial sample can be accurately classified.</p>
+<p>There are two different architectures are designed for denoising, Denoising AutoEncoder(DAE) and Denoising Additive U-Net(DUNET)<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Adversarial-Examples/dae_and_dunet.png"></p>
+<p>Firstly propose a kind of denoiser called Pixel Guided Denoiser(PSG), the loss function of PGD is: $L=|x-\hat{x}|$, $\hat{x}$ is the denoised image. However, the denoised images purified by PGD shows lower accuracy compare to the raw adversarial examples.</p>
+<p>Due to the PGD cannot competely eliminate the perturbations, the remained perturbations will be enlarged with the increase of layers, finally forcing network make the wrong decision.</p>
+<p>So another denoiser named High-level representation Guided Denoiser(HGD) is proposed, the key idea of HGD is replace  the difference between pixels with the difference between high-level representation in a pre-trained CNN. Thus the loss function is changed into: $L=\left|f_{l}(\hat{x})-f_{l}(x)\right|$, $f_l(\hat{x})$ means the $l_{th}$ feature in the pre-trained model.<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Adversarial-Examples/3_different_training_mathods_for_HGD.png"></p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">Ming Li</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://coderming.cn/2020/09/15/Introduction-To-Adversarial-Examples/">https://coderming.cn/2020/09/15/Introduction-To-Adversarial-Examples/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Adversarial/">Adversarial</a></div><div class="post_share"><div class="social-share" data-image="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Adversarial-Examples/avatar.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> Donate<div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://limingcv.coding.net/p/images/d/images/git/raw/master/reward/wechat.png" target="_blank"><img class="post-qr-code-img" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/reward/wechat.png" alt="WeChat"/></a><div class="post-qr-code-desc">WeChat</div></li><li class="reward-item"><a href="https://qr.alipay.com/fkx12431y6k0soy7vokzi19" target="_blank"><img class="post-qr-code-img" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/reward/alipay.jpg" alt="AliPay"/></a><div class="post-qr-code-desc">AliPay</div></li></ul></div></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/09/29/Introduction-To-Visual-Tracking/"><img class="prev-cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/avatar.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">Introduction to Visual Tracking</div></div></a></div><div class="next-post pull-right"><a href="/2020/09/15/Adversarial-Examples/"><img class="next-cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Adversarial-Examples/avatar.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">Paper List About Adversarial Examples</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2020/09/15/Adversarial-Examples/" title="Paper List About Adversarial Examples"><img class="cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Adversarial-Examples/avatar.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-15</div><div class="title">Paper List About Adversarial Examples</div></div></a></div></div></div></article></main><footer id="footer" style="background-image: url(https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Adversarial-Examples/avatar.png)"><div id="footer-wrap"><div class="copyright">&copy;2020 By Ming Li</div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">Local search</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>Powered by</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a></div></div></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div></div></body></html>
