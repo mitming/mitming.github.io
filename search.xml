@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>Introduction to Video Action Understanding</title>
+      <link href="2020/10/19/Introduction-to-Video-Action-Understanding/"/>
+      <url>2020/10/19/Introduction-to-Video-Action-Understanding/</url>
+      
+        <content type="html"><![CDATA[<h1 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h1><p>本文主要是对 <a href="https://arxiv.org/pdf/2010.06647.pdf">Video Action Understanding: A Tutorial</a> 一文进行翻译和整理, 这是一篇很好的综述文章, MIT 大佬写的, 推荐去看.</p><p>首先说明一下几个概念, 在文献中 <code>instance</code> 通常是指一个完整的视频, <code>segment</code> 是指从一个视频中裁剪出的一个片段.</p><p>作者把视频行为理解分为了下图中的几个部分:<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Introduction-to-Video-Action-Understanding/action_understanding.png"></p><h1 id="Problem-Definition"><a href="#Problem-Definition" class="headerlink" title="Problem Definition"></a>Problem Definition</h1><h2 id="Action-Recognition"><a href="#Action-Recognition" class="headerlink" title="Action Recognition"></a>Action Recognition</h2><p>定义为对一个完整的视频进行分类的过程, 如果动作在整个视频中都存在, 那么被称为 trimmed action recognition, 否则被称为 untrimmed action recognition, 通常而言 untrimmed action recognition 会更难, 因为此时模型需要在完成分类任务的同时忽略非动作的背景片段.</p><p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Introduction-to-Video-Action-Understanding/action_recognition.png"></p><h2 id="Action-Prediction"><a href="#Action-Prediction" class="headerlink" title="Action Prediction"></a>Action Prediction</h2><p>定义为对一个不完整的视频进行分类的过程, 即只知道视频的一部分, 用这一部分信息来对整个视频进行分类.</p><p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Introduction-to-Video-Action-Understanding/action_prediction.png"></p><h2 id="Temporal-Action-Proposal"><a href="#Temporal-Action-Proposal" class="headerlink" title="Temporal Action Proposal"></a>Temporal Action Proposal</h2><p>通过求得每个行为实例的开始时间和结束时间来把输入的视频分为若干个动作和非动作的片段(片段是一系列连续的帧).不对每个行为实例进行具体分类.</p><p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Introduction-to-Video-Action-Understanding/temporal_action_proposal.png"></p><h2 id="Temporal-Action-Localization-Detection"><a href="#Temporal-Action-Localization-Detection" class="headerlink" title="Temporal Action Localization/Detection"></a>Temporal Action Localization/Detection</h2><p>在 Temporal Action Proposal 的基础上对每个 Proposal(行为实例) 进行分类.</p><p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Introduction-to-Video-Action-Understanding/temporal_action_detection.png"></p><h2 id="Spatiotemporal-Action-Proposal"><a href="#Spatiotemporal-Action-Proposal" class="headerlink" title="Spatiotemporal Action Proposal"></a>Spatiotemporal Action Proposal</h2><p>除了给出每个动作在时间上的开始和结束时间外(找到开始帧和结束帧), 还需要在空间上给出 Bounding Box 来框出每个正在进行某个动作的物体. 如果这里使用了某种连接策略来对每个帧的 Bounding Box 进行关联, 那么这个动作区域(时间和空间维度)被称为 tubes 或者 tubelets.</p><p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Introduction-to-Video-Action-Understanding/spatiotemporal_action_proposal.png"></p><h2 id="Spatiotemporal-Action-Localization-Detection"><a href="#Spatiotemporal-Action-Localization-Detection" class="headerlink" title="Spatiotemporal Action Localization/Detection"></a>Spatiotemporal Action Localization/Detection</h2><p>在 Spatiotemporal Action Proposal 基础上对每个 Proposal(行为实例) 进行分类.</p><p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Introduction-to-Video-Action-Understanding/spatiotemporal_action_detection.png"></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> Video </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Video </tag>
+            
+            <tag> Action </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Deformable Convolutional Networks</title>
       <link href="2020/10/12/Deformable-CNNs/"/>
       <url>2020/10/12/Deformable-CNNs/</url>
