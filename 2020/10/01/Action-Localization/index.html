@@ -1,9 +1,9 @@
-<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Action Localization | Ming</title><meta name="keywords" content="Detection,Video,Action"><meta name="author" content="Ming Li"><meta name="copyright" content="Ming Li"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="OverviewDefinition首先介绍动作检测的基本知识, 后面会对这几年的顶会论文进行分析和结果展示.先看下动作检测和视频分类有什么区别吧.  动作分类就是视频分类, 判断视频中的物体在做啥, 动作检测就是给定一段长的视频, 不但要检测出有哪些动作, 还要检测这些动作开始和结束的时间. Recent Methods主要分为 Anchor-Based 和 Anchor-Free  Ancho">
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Action Localization | Ming</title><meta name="keywords" content="Detection,Video,Action"><meta name="author" content="Ming Li"><meta name="copyright" content="Ming Li"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="Overview  Definition 首先介绍动作检测的基本知识, 后面会对这几年的顶会论文进行分析和结果展示.先看下动作检测和视频分类有什么区别吧.  动作分类就是视频分类, 判断视频中的物体在做啥, 动作检测就是给定一段长的视频, 不但要检测出有哪些动作, 还要检测这些动作开始和结束的时间.  Recent Methods 主要分为 Anchor-Based 和 Anchor-Free">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Action Localization">
 <meta property="og:url" content="https://coderming.cn/2020/10/01/Action-Localization/index.html">
 <meta property="og:site_name" content="Ming">
-<meta property="og:description" content="OverviewDefinition首先介绍动作检测的基本知识, 后面会对这几年的顶会论文进行分析和结果展示.先看下动作检测和视频分类有什么区别吧.  动作分类就是视频分类, 判断视频中的物体在做啥, 动作检测就是给定一段长的视频, 不但要检测出有哪些动作, 还要检测这些动作开始和结束的时间. Recent Methods主要分为 Anchor-Based 和 Anchor-Free  Ancho">
+<meta property="og:description" content="Overview  Definition 首先介绍动作检测的基本知识, 后面会对这几年的顶会论文进行分析和结果展示.先看下动作检测和视频分类有什么区别吧.  动作分类就是视频分类, 判断视频中的物体在做啥, 动作检测就是给定一段长的视频, 不但要检测出有哪些动作, 还要检测这些动作开始和结束的时间.  Recent Methods 主要分为 Anchor-Based 和 Anchor-Free">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/temporal_action_localization.png">
 <meta property="article:published_time" content="2020-10-01T07:14:32.000Z">
@@ -144,41 +144,45 @@ var saveToLocal = {
     if (t === 'dark') activateDarkMode()
     else if (t === 'light') activateLightMode()
   }
-})()</script><meta name="generator" content="Hexo 5.2.0"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">Articles</div><div class="length_num">19</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">Tags</div><div class="length_num">14</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">Categories</div><div class="length_num">8</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/images/"><i class="fa-fw fas fa-images"></i><span> Images</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div></div></div></div><div id="body-wrap"><div id="web_bg"></div><div id="sidebar"><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Overview"><span class="toc-number">1.</span> <span class="toc-text">Overview</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Definition"><span class="toc-number">1.1.</span> <span class="toc-text">Definition</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Recent-Methods"><span class="toc-number">1.2.</span> <span class="toc-text">Recent Methods</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Paper-Reading"><span class="toc-number">2.</span> <span class="toc-text">Paper Reading</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#CVPR%E2%80%9920"><span class="toc-number">2.1.</span> <span class="toc-text">CVPR’20</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ECCV%E2%80%9920"><span class="toc-number">2.2.</span> <span class="toc-text">ECCV’20</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CVPR%E2%80%9919"><span class="toc-number">2.3.</span> <span class="toc-text">CVPR’19</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ICCV%E2%80%9919"><span class="toc-number">2.4.</span> <span class="toc-text">ICCV’19</span></a></li></ol></li></ol></div></div></div><header class="post-bg" id="page-header" style="background-image: url(https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/temporal_action_localization.png)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Ming</a></span><span id="menus"><div id="search_button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> Search</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/images/"><i class="fa-fw fas fa-images"></i><span> Images</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div></div><span class="close" id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">Action Localization</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2020-10-01T07:14:32.000Z" title="Created 2020-10-01 15:14:32">2020-10-01</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2020-10-02T11:16:57.215Z" title="Updated 2020-10-02 19:16:57">2020-10-02</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Video-Analysis/">Video Analysis</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word count:</span><span class="word-count">6.3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading time:</span><span>21min</span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h1 id="Overview"><a href="#Overview" class="headerlink" title="Overview"></a>Overview</h1><h2 id="Definition"><a href="#Definition" class="headerlink" title="Definition"></a>Definition</h2><p>首先介绍动作检测的基本知识, 后面会对这几年的顶会论文进行分析和结果展示.先看下动作检测和视频分类有什么区别吧.</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/temporal_action_localization.png"></p>
+})()</script><meta name="generator" content="Hexo 5.2.0"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">Articles</div><div class="length_num">19</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">Tags</div><div class="length_num">14</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">Categories</div><div class="length_num">8</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/images/"><i class="fa-fw fas fa-images"></i><span> Images</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div></div></div></div><div id="body-wrap"><div id="web_bg"></div><div id="sidebar"><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div class="sidebar-toc"><div class="sidebar-toc__title">Catalog</div><div class="sidebar-toc__progress"><span class="progress-notice">You've read</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#overview"><span class="toc-number">1.</span> <span class="toc-text"> Overview</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#definition"><span class="toc-number">1.1.</span> <span class="toc-text"> Definition</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#recent-methods"><span class="toc-number">1.2.</span> <span class="toc-text"> Recent Methods</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#paper-reading"><span class="toc-number">2.</span> <span class="toc-text"> Paper Reading</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#cvpr20"><span class="toc-number">2.1.</span> <span class="toc-text"> CVPR’20</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#eccv20"><span class="toc-number">2.2.</span> <span class="toc-text"> ECCV’20</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#cvpr19"><span class="toc-number">2.3.</span> <span class="toc-text"> CVPR’19</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#iccv19"><span class="toc-number">2.4.</span> <span class="toc-text"> ICCV’19</span></a></li></ol></li></ol></div></div></div><header class="post-bg" id="page-header" style="background-image: url(https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/temporal_action_localization.png)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Ming</a></span><span id="menus"><div id="search_button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> Search</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/images/"><i class="fa-fw fas fa-images"></i><span> Images</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div></div><span class="close" id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">Action Localization</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2020-10-01T07:14:32.000Z" title="Created 2020-10-01 15:14:32">2020-10-01</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2020-10-02T11:16:57.215Z" title="Updated 2020-10-02 19:16:57">2020-10-02</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Video-Analysis/">Video Analysis</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word count:</span><span class="word-count">6.3k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading time:</span><span>21min</span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h1 id="overview"><a class="markdownIt-Anchor" href="#overview"></a> Overview</h1>
+<h2 id="definition"><a class="markdownIt-Anchor" href="#definition"></a> Definition</h2>
+<p>首先介绍动作检测的基本知识, 后面会对这几年的顶会论文进行分析和结果展示.先看下动作检测和视频分类有什么区别吧.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/temporal_action_localization.png" alt="" /></p>
 <p>动作分类就是视频分类, 判断视频中的物体在做啥, 动作检测就是给定一段长的视频, 不但要检测出有哪些动作, 还要检测这些动作开始和结束的时间.</p>
-<h2 id="Recent-Methods"><a href="#Recent-Methods" class="headerlink" title="Recent Methods"></a>Recent Methods</h2><p>主要分为 Anchor-Based 和 Anchor-Free</p>
+<h2 id="recent-methods"><a class="markdownIt-Anchor" href="#recent-methods"></a> Recent Methods</h2>
+<p>主要分为 Anchor-Based 和 Anchor-Free</p>
 <ol>
-<li><p>Anchor-Based<br>又叫 top-town 网络, 主要靠的是全局的上下文信息, 需要和检测中一样, 定义多尺度的 anchor 作为 proposals, 代表的方法有 SSAD, SSTAD, CBR, TURN 等</p>
+<li>
+<p>Anchor-Based<br />
+又叫 top-town 网络, 主要靠的是全局的上下文信息, 需要和检测中一样, 定义多尺度的 anchor 作为 proposals, 代表的方法有 SSAD, SSTAD, CBR, TURN 等</p>
 </li>
-<li><p>Anchor-Free<br>又叫 bottom-up 网络, 主要靠局部的上下文信息, 首先评估类似边界概率或者动作能力, 然后利用这些来生成 proposals, 代表的方法有 TAG 和 BSN 等.</p>
+<li>
+<p>Anchor-Free<br />
+又叫 bottom-up 网络, 主要靠局部的上下文信息, 首先评估类似边界概率或者动作能力, 然后利用这些来生成 proposals, 代表的方法有 TAG 和 BSN 等.</p>
 </li>
 </ol>
-<h1 id="Paper-Reading"><a href="#Paper-Reading" class="headerlink" title="Paper Reading"></a>Paper Reading</h1><h2 id="CVPR’20"><a href="#CVPR’20" class="headerlink" title="CVPR’20"></a>CVPR’20</h2><div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>ActionBytes: Learning From Trimmed Videos to Localize Actions</span></div>
+<h1 id="paper-reading"><a class="markdownIt-Anchor" href="#paper-reading"></a> Paper Reading</h1>
+<h2 id="cvpr20"><a class="markdownIt-Anchor" href="#cvpr20"></a> CVPR’20</h2>
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>ActionBytes: Learning From Trimmed Videos to Localize Actions</span></div>
     <div class="hide-content"><p>传统的方法是在训练时使用有标注的未修剪视频, 这里在训练时使用剪短的修剪过的视频, 作者认为这种方式能从最初为动作分类设计的大规模数据集中进行受益.</p>
 <p>作者提出一种方法来把一个视频分解为很多可解释的片段, 这些片段被称为 ActionBytes, 对 ActionBytes 进行聚类, 并将聚类结果作为伪标签来训练检测网络.</p>
 <p>通过这样做就能在短且修剪过的数据上训练, 但对于 ActionBytes 而言都是没有修剪过的. 这样无论是单独的 ActionBytes 还是进行合并, 都可以作为有效的 proposals.</p>
 <p>作者还展示了这种方法能够用于 zero-shot learning 和弱监督学习, 并得到了 SOTA 的结果. 下面图中的 Baseline 是指直接在 Kinetics-400 验证集上进行训练的检测模型, 没有 ActionBytes 和迭代训练, <strong>Ours</strong> 表示使用了 ActionBytes Mining 方法, <strong>Ours(+Proposals)</strong> 表示在检测时将 ActionBytes 添加到 proposals 池中</p>
-<p>首先是在 3 个数据集上的 mAP<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/actionbytes_localization_results.png"></p>
-<p>zero-shot 的结果<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/actionbytes_localization_zeroshot_results.png"></p>
-<p>弱监督的结果<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/actionbytes_localization_weakly_supervised_localization_results.png"></p>
+<p>首先是在 3 个数据集上的 mAP<br />
+<img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/actionbytes_localization_results.png" alt="" /></p>
+<p>zero-shot 的结果<br />
+<img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/actionbytes_localization_zeroshot_results.png" alt="" /></p>
+<p>弱监督的结果<br />
+<img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/actionbytes_localization_weakly_supervised_localization_results.png" alt="" /></p>
 </div></div>
-
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>G-TAD: Sub-Graph Localization for Temporal Action Detection</span></div>
     <div class="hide-content"><p>作者认为当前很多方法只关注时序信息而忽略了语义上下文信息(空间信息)也是一个很重要的属性.(感觉有点扯)</p>
 <p>作者提出了一种 GCN 模型, 目的是将多级语义的上下文信息(空间信息)自适应的整合到视频特征之中, 并将动作检测问题作为子图定位问题来解决.</p>
 <p>具体做法是将视频片段看成图的结点, 片段和片段之间的关系看成边, 与上下文相关联的动作作为目标子图.</p>
 <p>作者设计了一个 GCN Block, 其通过聚合每个结点的上下文信息来学习每个结点的功能, 并动态更新图中的边, 为了定位每个子图, 作者还设计了一个 SGAlign Layer 来把每个子图 embedding 到欧式距离空间</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/GTAD_results_ActivityNet.png"></p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/GTAD_results_THUMOS.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/GTAD_results_ActivityNet.png" alt="" /></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/GTAD_results_THUMOS.png" alt="" /></p>
 </div></div>
-
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Learning Temporal Co-Attention Models for Unsupervised Video Action Localization</span></div>
     <div class="hide-content"><p>这篇文章主要针对弱监督和无监督的动作检测问题.</p>
 <p>第一篇做无监督的动作检测??? 这里作者定义的无监督是指只知道视频中的动作总数(total count of unique actions), 作者把这种 task 称为 action co-localization (ACL).</p>
@@ -188,63 +192,44 @@ var saveToLocal = {
 <li>提出了 co-attention model, 不论是否针对具体类还是不针对具体类, 都能从 video-level 或者伪标签中进行学习</li>
 <li>为 ACL 设计了新的损失函数, 包括  action-background separation loss 和 cluster-based triplet loss</li>
 </ol>
-<p>首先是在 THUMOS 数据集上的结果<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/coattention_THUMOS_result.png"></p>
-<p>在 ActivityNet1.2 数据集上的结果<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/coattention_activitynet_result.png"></p>
+<p>首先是在 THUMOS 数据集上的结果<br />
+<img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/coattention_THUMOS_result.png" alt="" /></p>
+<p>在 ActivityNet1.2 数据集上的结果<br />
+<img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/coattention_activitynet_result.png" alt="" /></p>
 </div></div>
-
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Learning to Discriminate Information for Online Action Detection</span></div>
     <div class="hide-content"><p>这篇文章主要针对 online action detection 问题</p>
 <p>传统方法用 RNN 来对时序信息进行建模, 但这些方法没有考虑到当前输入的视频同时包括背景, 不相关的动作以及我们需要的动作.</p>
 <p>作者提出了一种 RNN Unit 来显示区分当前正在进行的动作和其他动作, 这种 RNN Unit 能根据与当前动作的相关性来决定是否积累输入信息, 这使得模型能够学到更具判别能力的特征, 以识别正在进行的动作.</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/IDN_TVSeries.png"></p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/IDN_THUMOS14.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/IDN_TVSeries.png" alt="" /></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/IDN_THUMOS14.png" alt="" /></p>
 </div></div>
-
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>METAL: Minimum Effort Temporal Activity Localization in Untrimmed Videos</span></div>
     <div class="hide-content"><p>研究如何在弱监督的条件下对未知的动作进行检测. 其实…就是挖坑, 提出了这种很无语的问题, 你全监督的结果都不咋地, 更别说这个 task 了</p>
 <p>这问题简单来说就是只给出很少的 examples, 在未经修剪过的视频中查找语义相关的视频片段, 模型的训练是只在弱监督下做的…</p>
 <p>为了达到这个目的, 提出了一个 Similarity Pyramid Network (SPN), SPN 使用了 Relation Network 的 few-shot learning 并直接编码分层的多尺度相关性, 学习 2 个互补的损失函数来进行学习.</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/METAL_activitynet_result.png"></p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/METAL_THUMOS_result.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/METAL_activitynet_result.png" alt="" /></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/METAL_THUMOS_result.png" alt="" /></p>
 </div></div>
-
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Weakly-Supervised Action Localization by Generative Attention Modeling</span></div>
     <div class="hide-content"><p>针对弱监督的动作检测</p>
 <p>通常的网络都依赖于 Classification Activation, 类似于 CAM 的东西, 用 attention model 来标识并分类 frames, 但这种方法容易把接近 action frames 的 frames 也算入 action frames, 作者称为 action-context confusion issue</p>
 <p>为了解决这个问题, 作者使用 VAE 来对 class-agnostic 的 frame-wise 概率进行建模.</p>
 <p>作者观察到上下文信息和 representation-level 的动作有比较显著的差异, 所以在给定的 attention 下, 用一个条件 VAE 来对每个帧的可能性进行建模, 通过最大化和 attention 相关的条件概率来将 action 和 non-action 的 frames 进行分离.</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/DGAM_THUMOS_result.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/DGAM_THUMOS_result.png" alt="" /></p>
 </div></div>
-
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>ZSTAD: Zero-Shot Temporal Activity Detection</span></div>
     <div class="hide-content"><p>又是挖坑之作, 提了个新任务叫 zero-shot temporal activity detection (ZSTAD), 是想检测训练集中没有的动作.</p>
 <p>基于 R-C3D 来做的, 提出了一个损失函数来优化模型, 这个函数考虑了每种 action 和其超类的 embedding, 以这种方式能够学习已知和未知的 action 的语义信息.</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/ZSTAD_THUMOS.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/ZSTAD_THUMOS.png" alt="" /></p>
 </div></div>
-
-
-<h2 id="ECCV’20"><a href="#ECCV’20" class="headerlink" title="ECCV’20"></a>ECCV’20</h2><div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Action Localization through Continual Predictive Learning</span></div>
+<h2 id="eccv20"><a class="markdownIt-Anchor" href="#eccv20"></a> ECCV’20</h2>
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Action Localization through Continual Predictive Learning</span></div>
     <div class="hide-content"><p>研究动作识别中的自监督学习</p>
 <p>提出一种基于 continual learning 方法来使用 feature-level 的预测进行自监督. 就 frame-level 的 bbox 而言在训练过程中无需任何的标注. 本文想法收到 cognitive model 的启发, 该模型使用 prediction-based 方法进行事件理解.</p>
 <p>将多个堆叠的 LSTM 和一个 CNN 编码器结合起来用, 并使用 attention 机制来对视频中的事件进行建模, 以此来预测未来帧的高级特征. 错误的预测能用于持续更新模型参数.</p>
 <p>这种 self-supervised 方法比其他方法简单, 且对于 label 和 localization 方面能学到强大的特征. 值得注意的是该方法以流的方式输出, 所以只需要经过一次视频, 这也使得这种方式能达到实时</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/continue_learning_result.png"></p></div></div>
-
-
-
-
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/continue_learning_result.png" alt="" /></p></div></div>
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Actions as Moving Points</span></div>
     <div class="hide-content"><p>针对 action tubelet detection, 就是还需要检测做动作的人的位置, 这样检测的结果像一个管道.</p>
 <p>把 CenterNet 的思想拿过来了, 把每个 action instance(做动作的人在空间中的位置) 看成一个点移动的轨迹.</p>
@@ -254,39 +239,28 @@ var saveToLocal = {
 <li>Movement Branch 用于在相邻帧之间进行运行估计以形成运动点的轨迹.</li>
 <li>用于回归每个中心点的 bbox 的 Box Branch</li>
 </ol>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/MOC_results.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/MOC_results.png" alt="" /></p>
 </div></div>
-
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Adaptive Video Highlight Detection by Learning from User History</span></div>
     <div class="hide-content"><p>有点类似于推荐? 根据用户以前已经创造过的 highlight 来检测更适合用户的 highlight.</p>
 <p>有 2 个子网络, 一个全卷积的时序 highlight 检测网络 H 和一个根据用户历史记录得到的历史编码网络 M.</p>
 <p>向 H 中引入一个 temporal-adaptive instance normalization layer 来实现 2 个子网络的交互, 这个 layer 能从 M 中预测 affine parameter 并且向 H 传递用户自适应信号.</p>
 </div></div>
-
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Adversarial Background-Aware Loss for Weakly-supervised Temporal Activity Localization</span></div>
     <div class="hide-content"><p>为什么又是弱监督??? 全监督的效果也不咋地啊!!!</p>
 <p>为了解决弱监督方法会把没发生动作的视频片段识别为发生动作的片段的问题.</p>
 <p>提出了 2 个三元组, 第一个用于为每个动作类别学习可判别的特征, 第二个用于将没发生动作的特征和发生动作的特征区分开来.</p>
 <p>利用对抗的思想来训练网络, 设置 2 个并行的 branches, 第一个用于检测视频中最可能发生动作的片段, 第二个用于从视频没被定位的地方找到其他补充的动作.</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/A2CL-PT_results.png"><br>提出一种异步交互聚合的方式来增强 action detection.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/A2CL-PT_results.png" alt="" /><br />
+提出一种异步交互聚合的方式来增强 action detection.</p>
 <p>主要设计了 2 个东西:</p>
 <ol>
 <li>设计了 Interaction Aggregation structure, 用统一的范式来建模和集成多种类型的交互.</li>
 <li>设计了 Asynchronous Memory Update algorithm, 使我们能通过动态建模长时间的交互以获得更好的性能.</li>
 </ol>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/AIA_AVA_result.png"></p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/AIA_results_UCF.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/AIA_AVA_result.png" alt="" /></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/AIA_results_UCF.png" alt="" /></p>
 </div></div>
-
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Bottom-Up Temporal Action Localization with Mutual Regularization</span></div>
     <div class="hide-content"><p>目前的方法都有 3 个阶段: 开始时间, 持续时间和结束时间, 就扯呗… 知道开始时间和持续时间不就知道结束时间了么???</p>
 <p>这篇文章深入研究了这种机制, 认为目前的方法将这些阶段都建模为单独的分类任务会忽略这些阶段之间潜在的一种时间约束. 所以当输入的某些帧缺少足够的判别性信息时, 会导致分类错误.</p>
@@ -295,44 +269,28 @@ var saveToLocal = {
 <li>the Intra-phase Consistency (IntraC) regularization 用于在每个阶段内得到验证</li>
 <li>the Inter-phase Consistency (InterC) regularization 用于维持这些阶段之间的连续性</li>
 </ol>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/mutual_regularization_result.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/mutual_regularization_result.png" alt="" /></p>
 </div></div>
-
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Boundary Content Graph Neural Network for Temporal Action Proposal Generation</span></div>
     <div class="hide-content"><p>目的是为了提高 proposals 的边界的准确率以及得到置信度高的 proposal, 用图神经网络来对边界和 proposals 的动作内容之间的关系进行建模</p>
 <p>每个 temporal proposal 的边界和内容分别作为图的结点和边, 然后提出了一种新颖的图计算操作来更新边和节点的特征。接着使用更新后的边和它连接的两个节点来预测边界的概率和内容的置信度.</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/BCGNN_activitynet_result.png"></p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/BCGNN_THUMOS_result.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/BCGNN_activitynet_result.png" alt="" /></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/BCGNN_THUMOS_result.png" alt="" /></p>
 </div></div>
-
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>CFAD: Coarse-to-Fine Action Detector for Spatiotemporal Action Localization</span></div>
     <div class="hide-content"><p>提出了一种新的范式, 首先预测一个粗糙的 action tubes, 然后基于 key timestamps 来 refine 这些 tube 的位置.</p>
 <p>粗糙模型中的长时序信息的参数化建模能获得比较准确的初始化的 tube, 然后 Refine 模块根据 timestamps 来选择性地调整 tube 的位置</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/CFAD_results.png"></p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/CFAD_UCF_result.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/CFAD_results.png" alt="" /></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/CFAD_UCF_result.png" alt="" /></p>
 </div></div>
-
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Context-Aware RCNN: A Baseline for Action Detection in Videos</span></div>
     <div class="hide-content"><p>时空定位的论文</p>
 <p>这篇文章指出识别精度和一个 actor 的 bbox 的 size 高度相关, 因此 actors 的分辨率越高会有更好的性能. 但由于视频需要进行密集采样才能实现准确识别, 受限于 GPU 内存, 到 backbone 的帧的分辨率必须是很低的, 这导致了进入 RoI Pooling 层的特征都很粗糙.</p>
 <p>所以在使用 I3D 来进行特征提取之前, 作者先在 actor 周围 crop 和 resize 图像块. 此外作者还发现拓展 actor 的 bbox 能轻微提高性能, 融合上下文信息能进一步提升性能.</p>
 <p>作者认为我们需要重新考虑分辨率在以 actor 为中心的动作识别中的作用.</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/context-aware_rcnn_ava_results.png"></p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/context-aware_rcnn_result_ava_per_class.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/context-aware_rcnn_ava_results.png" alt="" /></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/context-aware_rcnn_result_ava_per_class.png" alt="" /></p>
 </div></div>
-
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Learning to Localize Actions from Moments</span></div>
     <div class="hide-content"><p>原文写的真的不好翻译…</p>
 <p>作者只需要以下 2 个东西就能实现对很多类别的 action detection</p>
@@ -342,104 +300,69 @@ var saveToLocal = {
 </ol>
 <p>用一个权重转移方程来建立转换, 转换是指 action moments/foreground video 的分类和  未修剪视频/synthetic contextual moments  的 localization 之间的转换.</p>
 <p>通过对抗机制学习每个 action moment 的上下文信息, 以区分这些从未裁剪视频的背景中所生成的特征</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/AherNet_result.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/AherNet_result.png" alt="" /></p>
 </div></div>
-
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Localizing the Common Action Among a Few Videos</span></div>
     <div class="hide-content"><p>作者提出了一个新的任务, 叫 few-shot common action localization, 即一个长的未经裁剪的视频中的动作的开始和结束时刻仅根据包含相同动作的修剪过完整视频来确定, 无需知道它们的共同类别标签.</p>
 <p>为了解决这个任务提出了一种新的 3D 卷积结构, 这种卷积能将视频中的 representation 和相关的查询视频片段对齐.</p>
 </div></div>
-
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>MINI-Net: Multiple Instance Ranking Network for Video Highlight Detection</span></div>
     <div class="hide-content"><p>又是做弱监督的, 我吐了</p>
 <p>把每个视频视为很多个细分的小视频段, 然后提出的方法能够给 positive bag 更高的 score, 给 negative bag 更低的 score. 具体是用了一个 max-max ranking loss 来获得一个最可能是 positive bag 和 一个最可能是 negative bag 之间可靠的比较.</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/MININet_result.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/MININet_result.png" alt="" /></p>
 </div></div>
-
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>SF-Net: Single-Frame Supervision for Temporal Action Localization</span></div>
     <div class="hide-content"><p>简单来说就是只标注每个动作的一个帧就行, 无需标注动作的开始和结束时间, 这样能比弱监督的方式得到更好精度.</p>
 <p>这篇文章是研究如何在这种设定下进行 action detection</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/SFNet_result_THUMOS.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/SFNet_result_THUMOS.png" alt="" /></p>
 </div></div>
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Two-Stream Consensus Network for Weakly-Supervised Temporal Action Localization</span></div>
     <div class="hide-content"><p>通过迭代的 refine training method 来更新一个 frame-level 的伪标签, 用这个伪标签来增强弱监督方法中的模型训练和消除 FN 样本.</p>
 <p>还提出了一种新的 attention normalization loss 来使预测的注意类向 binary choice 一样起作用, 并促进动作边界的检测.</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/two-stream-consensusnetwork_results_thumos.png"></p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/two-stream-consensusnetwork_results_activitynet.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/two-stream-consensusnetwork_results_thumos.png" alt="" /></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/two-stream-consensusnetwork_results_activitynet.png" alt="" /></p>
 </div></div>
-
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Uncertainty-Aware Weakly Supervised Action Detection from Untrimmed Videos</span></div>
     <div class="hide-content"><p>时空检测的弱监督…吐血</p>
 <p>展示了如何使用一种新的MIL概率变体在标准的 multiple instance learning assumption（每个 bag 至少包含一个带有指定标签的 instance）的情况下应用我们的方法，并估算了每个预测的不确定性。</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/UAWSAD_results_UCF.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/UAWSAD_results_UCF.png" alt="" /></p>
 </div></div>
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Weakly-Supervised Action Localization with Expectation-Maximization Multi-Instance Learning</span></div>
     <div class="hide-content"><p>弱监督动作检测能够在 Multiple Instance Learning (MIL) 框架下被解决, 其中一个 bag(video) 含有多个 instance (action segments), 因为只有 bag 的标签是知道的, 所以主要的挑战就在于用 bag 中的哪些 instance 来触发 bag 的标签.</p>
 <p>许多现有的方法都采用 attention 机制, 利用 attention 来从 instance 中生成 bag 的 representation, 然后通过 bag 的分类来对这些 representation 进行训练, 这些模型隐式地违反了 MIL 的前提假设, 即 negative bag 中的 instances 应该都为 negative.</p>
 <p>本文的方法将关键的 instance 建模为隐变量, 然后用 EM 算法来求解, 提出了 2 中伪标签生成方法来对 E 过程和 M 过程建模, 并迭代地优化似然的下界.</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/EM-MIL_results_THUMOS.png"></p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/EM-MIL_results_activitynet.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/EM-MIL_results_THUMOS.png" alt="" /></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/EM-MIL_results_activitynet.png" alt="" /></p>
 </div></div>
-
-
-<h2 id="CVPR’19"><a href="#CVPR’19" class="headerlink" title="CVPR’19"></a>CVPR’19</h2><div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>A Structured Model for Action Detection</span></div>
+<h2 id="cvpr19"><a class="markdownIt-Anchor" href="#cvpr19"></a> CVPR’19</h2>
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>A Structured Model for Action Detection</span></div>
     <div class="hide-content"><p>将其他 domain 的知识整合到模型结构中以简化优化, 以此来提升 action detection 的效果</p>
 <p>具体的做法是利用跟踪模块拓展了 I3D 网络, 以此来聚合 long-term 的运动模式, 并使用一个 GCN 来对 actor 和 object 之间的交互进行推理.</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/structured_model_result_ava.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/structured_model_result_ava.png" alt="" /></p>
 </div></div>
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Completeness Modeling and Context Separation for Weakly Supervised Temporal Action Localization</span></div>
     <div class="hide-content"><p>做弱监督的</p>
 <p>首先表明弱监督方法存在 2 个问题, 分别叫做  action completeness modeling 和 action-context separation.</p>
 <p>为了对 action completeness 进行建模, 提出了一种多分支的结构, 每个分支都被迫使去发现独特的 action 部分. 这样完整的动作就能够通过融合来自不同 branches 的 activations 来定位.</p>
 <p>为了将 action instance 和其周围环境分开, 作者使用固定大小的视频片段生成了 hard negative data 来训练, 这种方法的先验在于缺少动作的视频片段不太可能是行为片段</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/CMCS_THUMOS.png"></p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/CMCS_result_activitynet.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/CMCS_THUMOS.png" alt="" /></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/CMCS_result_activitynet.png" alt="" /></p>
 </div></div>
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Dance with Flow: Two-in-One Stream Action Detection</span></div>
     <div class="hide-content"><p>时空检测问题.</p>
 <p>想法是把 RGB Stream 和 Flow Stream 给 embedding 到一个 stream 里面.</p>
 <p>一个 motion conditional layer 从 flow images 中提取 motion information, 被 motion modulation layer 用来生成 transformation parameters, 这个 transform parameters 用于对 low-level 的 RGB 特征建模</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/two_in_one_result.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/two_in_one_result.png" alt="" /></p>
 </div></div>
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Gaussian Temporal Awareness Networks for Action Localization</span></div>
     <div class="hide-content"><p>目前基于检测的方法用的都是固定尺寸的 proposal, 本文提出用高斯核来动态调整每个 action proposal 的 temporal scale.</p>
 <p>本文通过学习一组 Gaussian Kernel 来对时序结构进行建模, 每个 kernel 对应特征图中的一个 cell.</p>
 <p>每个 kernel 对应了 action proposal 的一个特定的间隔, 这样多个 kernels 的混合可以代表不同长度的 action proposal.</p>
 <p>其中每个高斯曲线都能反映对一个 action proposal 进行定位的上下文信息的贡献程度.</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/GTAN_results.png"></p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/gtan_result_thumos.png"></p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/gtan_result_activitynet.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/GTAN_results.png" alt="" /></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/gtan_result_thumos.png" alt="" /></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/gtan_result_activitynet.png" alt="" /></p>
 </div></div>
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Improving Action Localization by Progressive Cross-stream Cooperation</span></div>
     <div class="hide-content"><p>做时空检测的</p>
 <p>时空检测可以看成 3 个 task:</p>
@@ -452,189 +375,109 @@ var saveToLocal = {
 <p>首先通过结合 2 个 stream 中的最新 proposals 来得到更多的 proposals, 这样就能获得更多的带有 label 的训练集, 能学到更好的动作检测模型.</p>
 <p>然后提出了一种新的消息传递方法, 用于把信息从一个 stream 传到另一个 stream, 以学习更好的 representation.</p>
 <p>为了进一步提升结果还提出了一种新的策略用于训练特定类别的 action detector, 以实现更好的时序分割.</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/pcsc_result_ucf.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/pcsc_result_ucf.png" alt="" /></p>
 </div></div>
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Language-driven Temporal Activity Localization: A Semantic Matchin Reinforcement Learning Model</span></div>
     <div class="hide-content"><p>挖坑… 用过句子查询来定位动作, 跳过</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/SMRL_results.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/SMRL_results.png" alt="" /></p>
 </div></div>
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Learning Regularity in Skeleton Trajectories for Anomaly Detection in Videos</span></div>
     <div class="hide-content"><p>用动态骨骼特征来进行异常检测, 跳过…</p>
 </div></div>
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Long-Term Feature Banks for Detailed Video Understanding</span></div>
     <div class="hide-content"><p>Kaiming He 的作品</p>
 <p>为了理解世界, 人类需要不断地把现在和过去联系起来, 并将事件置于背景之中.</p>
 <p>本文提出了一种 long-term feature bank, 这种方法可以在整个视频范围内提取信息, 而非只能提取 2-5 秒内的局部信息. 如下图所示:</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/3D_vs_LTFB.png"></p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/LFB_result.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/3D_vs_LTFB.png" alt="" /></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/LFB_result.png" alt="" /></p>
 </div></div>
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Multi-Granularity Generator for Temporal Action Proposal</span></div>
     <div class="hide-content"><p>提出一种 multi-granularity (多粒度) 生成器来从不同粒度的角度得到不同的 proposals</p>
 <p>首先使用一个 bilinear matching model 来得到局部信息, 然后通过组合 segment proposal producer (SPP) 和 frame action producer (FAP) 以 2 种不同的粒度来得到 proposals.</p>
 <p>SPP 以特征金字塔的形式考虑整个视频, 并从一个粗略的角度生成分段的 proposals, 而 FAP 对每个视频进行更精细的 proposals 评估.</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/mgg_result_thumos.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/mgg_result_thumos.png" alt="" /></p>
 </div></div>
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Peeking Into the Future: Predicting Future Person Activities and Locations in Videos</span></div>
     <div class="hide-content"><p>Feifei Li 的作品, 也算是挖坑, 预测行人未来的轨迹和动作…</p>
 </div></div>
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Spatio-temporal Video Re-localization by Warp LSTM</span></div>
     <div class="hide-content"><p>又是挖坑…提了个任务, 给定一个 query video 和一个 reference video,  Spatio-temporal Video Re-localization 的目的是在 reference video 中定位和 query video 有相同语义内容的 tubelets.</p>
 </div></div>
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>STEP: Spatio-Temporal Progressive Learning for Video Action Detection</span></div>
     <div class="hide-content"><p>做时空检测的</p>
 <p>逐步 refine 得到的 tubelets, 在每个 step 中都会适当地拓展 proposals 的 size, 使其能够纳入更多相关的时序上下文信息.</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/step_result.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/step_result.png" alt="" /></p>
 </div></div>
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Video Action Transformer Network</span></div>
     <div class="hide-content"><p>设计了一种类似 Transformer 的结构, 将时空上下文信息聚合到 actor 周围, 通过使用高分辨率的, 以人为中心的, 类别无关的查询, 模型能够自发地学习跟踪单个人并从他人的行为中获取语义上下文信息.</p>
 <p>这种注意力机制结果会更倾向于人的手和脸, 这通常是区分动作的关键, 除了 bbox 和类别标签外没有其他的监督.</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/transformer_result_txhead.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/transformer_result_txhead.png" alt="" /></p>
 </div></div>
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>TACNet: Transition-Aware Context Network for Spatio-Temporal Action Detection</span></div>
     <div class="hide-content"><p>作者认为当前方法效果不好的原因在于有些不是 action 的视频段的 state 和真实 action 视频段的 state 相似, 所以导致了分类错误, 这种 state 被作者称为 “transitional states”</p>
 <p>作者提出了 2 个东西来解决这个问题, temporal context detector 和 transition-aware classifier.</p>
 <p>temporal context detector 通过构建一个 RNN 来提取 long-term 的上下文信息, transition-aware classifier 通过同时对 action 和 transitional state 进行分类来区分 transitional states.</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/TACNet_result_ucf.png"></p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/TACNet_results.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/TACNet_result_ucf.png" alt="" /></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/TACNet_results.png" alt="" /></p>
 </div></div>
-
-
-
-<h2 id="ICCV’19"><a href="#ICCV’19" class="headerlink" title="ICCV’19"></a>ICCV’19</h2><div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>3C-Net: Category Count and Center Loss for Weakly-Supervised Action Localization</span></div>
+<h2 id="iccv19"><a class="markdownIt-Anchor" href="#iccv19"></a> ICCV’19</h2>
+<div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>3C-Net: Category Count and Center Loss for Weakly-Supervised Action Localization</span></div>
     <div class="hide-content"><p>介绍了一种新颖的公式来学习 discriminative 的 action 特征, 公式主要有 3 个项:</p>
 <ol>
 <li>一个用于确保学到的特征具有可区分性的分类项</li>
 <li>一个自适应的 center loss 项来增强特征的可判别性</li>
 <li>一个计数损失项来描述相邻的动作序列, 从而改善定位.</li>
 </ol>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/3cnet_result_thumos.png"></p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/3cnet_result.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/3cnet_result_thumos.png" alt="" /></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/3cnet_result.png" alt="" /></p>
 </div></div>
-
-
-
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>BMN: Boundary-Matching Network for Temporal Action Proposal Generation</span></div>
     <div class="hide-content"><p>目前的方法能够产生精准的边界, 但无法产生很高的置信度, 所以作者提出了一种 MB 机制来评估密集分布的 proposals 的置信度得分.</p>
 <p>具体做法是将一个 proposal 看成一组匹配的开始点和结束点, 并将所有密集分布的 BM 对组合到 BM 置信图中.</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/BMN_result.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/BMN_result.png" alt="" /></p>
 </div></div>
-
-
-
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Graph Convolutional Networks for Temporal Action Localization</span></div>
     <div class="hide-content"><p>用 GCN 来做, 每个 proposal 是一个节点, proposal 和 proposal 之间的关系是边, 这里使用了 2 种类型的关系, 一种用于为每个 proposal 捕捉上下文信息, 另一种用来表征不同动作之间的相关性.</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/PGCN_result_thumos.png"></p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/PGCN_result_activitynet.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/PGCN_result_thumos.png" alt="" /></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/PGCN_result_activitynet.png" alt="" /></p>
 </div></div>
-
-
-
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Learning Motion in Feature Space: Locally-Consistent Deformable Convolution Networks for Fine-Grained Action Detection</span></div>
     <div class="hide-content"><p>搞细粒度的动作检测,</p>
 <p>提出了一种局部连续的可变形卷积, 它利用感受野的变化和局部相干约束来有效地捕捉动作信息.</p>
 </div></div>
-
-
-
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Learning Temporal Action Proposals With Fewer Labels</span></div>
     <div class="hide-content"><p>做半监督的, 直接上结果吧</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/semi_supervised_action_proposal_result_thumos.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/semi_supervised_action_proposal_result_thumos.png" alt="" /></p>
 </div></div>
-
-
-
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>StartNet: Online Detection of Action Start in Untrimmed Videos</span></div>
     <div class="hide-content"><p>把 Online Detection of Action Start (ODAS) 看成一个 two-stage 的问题: 使用 ClsNet 来进行动作识别, 使用 LocNet 来进行 start point 的检测.</p>
 <p>ClsNet 对每一帧都打标签, 并且在线预测动作的 score 分布, 然后 LocNet 使用策略梯度来优化 long-term 的定位, 以此实现与类别无关的检测.</p>
-<p>不是很能看明白这个结果, 还是放上来吧<br><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/startnet_result.png"></p>
+<p>不是很能看明白这个结果, 还是放上来吧<br />
+<img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/startnet_result.png" alt="" /></p>
 </div></div>
-
-
-
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Temporal Recurrent Networks for Online Action Detection</span></div>
     <div class="hide-content"><p>看名字就很直观了, 用 RNN 来做 online action detection,具体地, 在每个时间步, 我们都利用累计的历史信息和预测的未来信息来更好地识别当前正在发生的行为, 并将两者整合为一个统一的架构.</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/TRN_result_thumos.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/TRN_result_thumos.png" alt="" /></p>
 </div></div>
-
-
-
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Temporal Structure Mining for Weakly Supervised Action Detection</span></div>
     <div class="hide-content"><p>弱监督…</p>
 <p>现在的弱监督方法基本都是通过给每个视频段打分来检测动作段, 但这些方法都很难对视频段之间的时序关系进行建模, 且不能表征具有潜在时间结构的 action instance.</p>
 <p>为了解决这个问题作者提出了 temporal structure mining (TSM) 的方法, 在 TSM 中每个 instance 都被建模为一个多阶段的过程.</p>
 <p>在本文的方法中, phase filters 被用来计算每个细分动作阶段的置信度得分, 因为弱监督没有 frame-level 的标注, 所以无法直接训练 phase filters. 作者把每个分段的 phase 看成隐变量, 使用每个片段的 confidence score 来构造一个表, 然后利用最大循环路径来确定隐藏的隐变量, 也就是每个 segment 的 phase.</p>
 </div></div>
-
-
-
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Weakly Supervised Temporal Action Localization Through Contrast Based Evaluation Networks</span></div>
     <div class="hide-content"><p>弱监督…</p>
 <p>弱监督 action detection 只有 video-level 的标注, 这不可避免地会导致一些错误, 尤其是在为裁剪的视频中. 为了解决这个问题本文提出了一种新的 action proposal evaluator, 通过在 snippet-level 的动作分类上使用时序限制来提供伪监督.</p>
 <p>从本质上讲，新的 action proposal evaluator 会强制一个额外的时序约束, 因此置信度高的 proposals 会更有可能和真实的 action instance 吻合.</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/cleannet_result_thumos.png"></p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/CleanNet_result_acativitynet.png"></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/cleannet_result_thumos.png" alt="" /></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/CleanNet_result_acativitynet.png" alt="" /></p>
 </div></div>
-
-
-
-
-
-
 <div class="hide-toggle" style="border: 1px solid  #D3D3D3"><div class="hide-button toggle-title" style="background-color:  #D3D3D3;"><i class="fas fa-caret-right fa-fw"></i><span>Weakly-Supervised Action Localization With Background Modeling</span></div>
     <div class="hide-content"><p>弱监督…</p>
 <p>使用一个 attention 模型来同时对前景帧和背景帧进行特征提取, 之前的方法忽略了背景, 但本文发现通过对背景也进行建模, 我们的系统可以学习到更加丰富的 action 和时序的信息.</p>
 <p>本文将自下而上的, 与类别无关的注意力模块与自上而下的, 类别特定的 activation map 结合, 让后者作为前者的自监督形式, 这样可以让模型在没有明确的时间监督下学习更准确的 attention 模型.</p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/WSALB_result_thumos.png"></p>
-<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/WSALB_result_activitynet.png"></p>
-</div></div></div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">Ming Li</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://coderming.cn/2020/10/01/Action-Localization/">https://coderming.cn/2020/10/01/Action-Localization/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Detection/">Detection</a><a class="post-meta__tags" href="/tags/Video/">Video</a><a class="post-meta__tags" href="/tags/Action/">Action</a></div><div class="post_share"><div class="social-share" data-image="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/temporal_action_localization.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> Donate<div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://limingcv.coding.net/p/images/d/images/git/raw/master/reward/wechat.png" target="_blank"><img class="post-qr-code-img" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/reward/wechat.png" alt="WeChat"/></a><div class="post-qr-code-desc">WeChat</div></li><li class="reward-item"><a href="https://qr.alipay.com/fkx12431y6k0soy7vokzi19" target="_blank"><img class="post-qr-code-img" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/reward/alipay.jpg" alt="AliPay"/></a><div class="post-qr-code-desc">AliPay</div></li></ul></div></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/10/02/Action-Recognition/"><img class="prev-cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/avatar.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">Action Recognition</div></div></a></div><div class="next-post pull-right"><a href="/2020/09/29/Introduction-To-Visual-Tracking/"><img class="next-cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/avatar.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">Introduction to Visual Tracking</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2020/10/19/Introduction-to-Video-Action-Understanding/" title="Introduction to Video Action Understanding"><img class="cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Introduction-to-Video-Action-Understanding/avatar.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-10-19</div><div class="title">Introduction to Video Action Understanding</div></div></a></div><div><a href="/2020/10/02/Action-Recognition/" title="Action Recognition"><img class="cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/avatar.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-10-02</div><div class="title">Action Recognition</div></div></a></div><div><a href="/2020/10/12/Deformable-CNNs/" title="Deformable Convolutional Networks"><img class="cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Deformable-CNNs/avatar.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-10-12</div><div class="title">Deformable Convolutional Networks</div></div></a></div></div></div></article></main><footer id="footer" style="background-image: url(https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/temporal_action_localization.png)"><div id="footer-wrap"><div class="copyright">&copy;2020 By Ming Li</div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">Local search</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>Powered by</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a></div></div></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div></div></body></html>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/WSALB_result_thumos.png" alt="" /></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/WSALB_result_activitynet.png" alt="" /></p>
+</div></div></div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">Ming Li</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://coderming.cn/2020/10/01/Action-Localization/">https://coderming.cn/2020/10/01/Action-Localization/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Detection/">Detection</a><a class="post-meta__tags" href="/tags/Video/">Video</a><a class="post-meta__tags" href="/tags/Action/">Action</a></div><div class="post_share"><div class="social-share" data-image="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/temporal_action_localization.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> Donate<div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://limingcv.coding.net/p/images/d/images/git/raw/master/reward/wechat.png" target="_blank"><img class="post-qr-code-img" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/reward/wechat.png" alt="WeChat"/></a><div class="post-qr-code-desc">WeChat</div></li><li class="reward-item"><a href="https://qr.alipay.com/fkx12431y6k0soy7vokzi19" target="_blank"><img class="post-qr-code-img" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/reward/alipay.jpg" alt="AliPay"/></a><div class="post-qr-code-desc">AliPay</div></li></ul></div></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2020/10/02/Action-Recognition/"><img class="prev-cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/avatar.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">Action Recognition</div></div></a></div><div class="next-post pull-right"><a href="/2020/09/29/Introduction-To-Visual-Tracking/"><img class="next-cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/09/Introduction-To-Visual-Tracking/avatar.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">Introduction to Visual Tracking</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2020/10/19/Introduction-to-Video-Action-Understanding/" title="Introduction to Video Action Understanding"><img class="cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Introduction-to-Video-Action-Understanding/avatar.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-10-19</div><div class="title">Introduction to Video Action Understanding</div></div></a></div><div><a href="/2020/10/02/Action-Recognition/" title="Action Recognition"><img class="cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/avatar.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-10-02</div><div class="title">Action Recognition</div></div></a></div><div><a href="/2020/10/12/Deformable-CNNs/" title="Deformable Convolutional Networks"><img class="cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Deformable-CNNs/avatar.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-10-12</div><div class="title">Deformable Convolutional Networks</div></div></a></div></div></div></article></main><footer id="footer" style="background-image: url(https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization/temporal_action_localization.png)"><div id="footer-wrap"><div class="copyright">&copy;2020 By Ming Li</div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">Local search</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>Powered by</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a></div></div></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css"><script>$(function () {
+  $('span.katex-display').wrap('<div class="katex-wrap"></div>')
+})</script></div></div></body></html>
