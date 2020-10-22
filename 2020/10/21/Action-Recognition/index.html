@@ -1,0 +1,631 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Action Recognition | Ming</title><meta name="author" content="Ming Li"><meta name="copyright" content="Ming Li"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="这篇博客是根据 [CVPR 2020 Tutorial] 来整理有关行为识别的论文及方法. 一些方法的时间线如下:  最开始用 CNN 来做 Video 的是单流方法, 即只对 RGB frames 进行建模, 叫做 DeepVideo  但这种方法的效果并不是特别的好, 传统的手工特征 IDT 在 UCF101 数据集上的准确率为 87.9%, DeepVideo 的准确率才 65.4%, 可以">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Action Recognition">
+<meta property="og:url" content="https://coderming.cn/2020/10/21/Action-Recognition/index.html">
+<meta property="og:site_name" content="Ming">
+<meta property="og:description" content="这篇博客是根据 [CVPR 2020 Tutorial] 来整理有关行为识别的论文及方法. 一些方法的时间线如下:  最开始用 CNN 来做 Video 的是单流方法, 即只对 RGB frames 进行建模, 叫做 DeepVideo  但这种方法的效果并不是特别的好, 传统的手工特征 IDT 在 UCF101 数据集上的准确率为 87.9%, DeepVideo 的准确率才 65.4%, 可以">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/timeline.png">
+<meta property="article:published_time" content="2020-10-21T07:15:40.000Z">
+<meta property="article:modified_time" content="2020-10-22T06:28:55.008Z">
+<meta property="article:author" content="Ming Li">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/timeline.png"><link rel="shortcut icon" href="/img/avatar.jpg"><link rel="canonical" href="https://coderming.cn/2020/10/21/Action-Recognition/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  hexoversion: '5.2.0',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: false,
+  postUpdate: '2020-10-22 14:28:55'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {
+  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }
+})()</script><meta name="generator" content="Hexo 5.2.0"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">Articles</div><div class="length_num">20</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">Tags</div><div class="length_num">14</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">Categories</div><div class="length_num">8</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/images/"><i class="fa-fw fas fa-images"></i><span> Images</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div></div></div></div><div id="body-wrap"><div id="web_bg"></div><header class="post-bg" id="page-header" style="background-image: url(https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/timeline.png)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Ming</a></span><span id="menus"><div id="search_button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> Search</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/images/"><i class="fa-fw fas fa-images"></i><span> Images</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div></div><span class="close" id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">Action Recognition</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2020-10-21T07:15:40.000Z" title="Created 2020-10-21 15:15:40">2020-10-21</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2020-10-22T06:28:55.008Z" title="Updated 2020-10-22 14:28:55">2020-10-22</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Backbone/">Backbone</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word count:</span><span class="word-count">2.5k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading time:</span><span>9min</span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p>这篇博客是根据 [CVPR 2020 Tutorial] 来整理有关行为识别的论文及方法. 一些方法的时间线如下:</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/timeline.png" alt="" /></p>
+<p>最开始用 CNN 来做 Video 的是单流方法, 即只对 RGB frames 进行建模, 叫做 <a target="_blank" rel="noopener" href="https://www.cv-foundation.org/openaccess/content_cvpr_2014/html/Karpathy_Large-scale_Video_Classification_2014_CVPR_paper.html">DeepVideo</a></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/single_stream.png" alt="" /></p>
+<p>但这种方法的效果并不是特别的好, 传统的手工特征 IDT 在 UCF101 数据集上的准确率为 87.9%, DeepVideo 的准确率才 65.4%, 可以看到这种方法只考虑了外观信息(整幅图片+中心位置), 没有对时序信息进行建模.</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>UCF101</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IDT</td>
+<td>87.9%</td>
+</tr>
+<tr>
+<td>DeepVideo</td>
+<td>65.4%</td>
+</tr>
+</tbody>
+</table>
+<p>所以自然而然地出现了同时对空间和时间进行建模的方法, <a target="_blank" rel="noopener" href="http://papers.nips.cc/paper/5353-two-stream-convolutional">Two-Stream Networks</a></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/two_stream_cnn.png" alt="" /></p>
+<p>上面的数据流的输入是 RGB frames, 对外观信息(空间)进行建模, 下面的数据流的输入是光流, 用于对时序信息进行建模, 假设一个视频共有 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>T</mi></mrow><annotation encoding="application/x-tex">T</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">T</span></span></span></span> 帧, 那么光流的图片数为 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mn>2</mn><mo>×</mo><mo stretchy="false">(</mo><mi>T</mi><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">2 \times (T-1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">2</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">)</span></span></span></span>, 分别有 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>x</mi><mo separator="true">,</mo><mi>y</mi></mrow><annotation encoding="application/x-tex">x, y</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.19444em;"></span><span class="mord mathdefault">x</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault" style="margin-right:0.03588em;">y</span></span></span></span> 这 2 个空间方向.</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>UCF101</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IDT</td>
+<td>87.9%</td>
+</tr>
+<tr>
+<td>DeepVideo</td>
+<td>65.4%</td>
+</tr>
+<tr>
+<td>Two-Stream</td>
+<td>88.0%</td>
+</tr>
+</tbody>
+</table>
+<p>在使用了 Two-Stream 对时序信息也进行建模之后, CNN 的准确度第一次超过了手工特征 IDT, 在 UCF101 上达到了 88%(也就比 IDT 高了 0.1% …) 但这也标志着 Video Understanding 也开始进入 Deep Learning 大一统的时代…后续也有很多工作是 Two-Stream 的 follow-up, 部分论文如下图所示:</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/two_stream_follow_up.png" alt="" /></p>
+<p>一个一个来讲, 首先是 <a target="_blank" rel="noopener" href="https://www.cv-foundation.org/openaccess/content_cvpr_2015/html/Wang_Action_Recognition_With_2015_CVPR_paper.html">TDD</a>, 想法是利用基于跟踪的方法来和 two-stream 结合, 如下图所示</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/tdd.png" alt="" /></p>
+<p>上半部分左图用于提取轨迹特征, 跟踪一些点随时间变化的轨迹, 上半图右图先提取光流, 再对 RGB 和光流做图像金字塔来提取多尺度的特征, 之后就是特征融合了, 如下半部分所示, 最后用一个 <em>trajectory-constrained pooling</em> 来把融合后的特征映射为最终结果. TDD 在 UCF101 数据集上的精度为 91.5%, 第一次较大程度地超过了 IDT.</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>UCF101</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IDT</td>
+<td>87.9%</td>
+</tr>
+<tr>
+<td>DeepVideo</td>
+<td>65.4%</td>
+</tr>
+<tr>
+<td>Two-Stream</td>
+<td>88.0%</td>
+</tr>
+<tr>
+<td>TDD</td>
+<td>91.5%</td>
+</tr>
+</tbody>
+</table>
+<p>上面说到 Two-Stream Network 的目的是为了能够对时序进行建模, 但这种方式是通过在 temporal dimension 上做 temporal conv 实现的, 那能不能用 RNN 来促进时序建模呢? 所以就有了 <a target="_blank" rel="noopener" href="https://www.cv-foundation.org/openaccess/content_cvpr_2015/html/Ng_Beyond_Short_Snippets_2015_CVPR_paper.html">Beyond-Short-Snippets</a> 这篇文章.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/tbeyond_short_snippets.png" alt="" /></p>
+<p>目的是用 LSTM 来进一步对 long-term 时序信息进行建模, 但最终的效果不咋的, 相比于 Two-Stream, 添加 LSTM 后的结果仅仅只在 UCF101 上涨了 0.6%, 效果不是很好.</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>UCF101</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IDT</td>
+<td>87.9%</td>
+</tr>
+<tr>
+<td>DeepVideo</td>
+<td>65.4%</td>
+</tr>
+<tr>
+<td>Two-Stream</td>
+<td>88.0%</td>
+</tr>
+<tr>
+<td>TDD</td>
+<td>91.5%</td>
+</tr>
+<tr>
+<td>Beyond-Short-Snippets</td>
+<td>88.6%</td>
+</tr>
+</tbody>
+</table>
+<p>前面的方法都是 late fusion 的形式, 即先在网络的最后才对特征进行融合, <a target="_blank" rel="noopener" href="https://www.cv-foundation.org/openaccess/content_cvpr_2016/html/Feichtenhofer_Convolutional_Two-Stream_Network_CVPR_2016_paper.html">Two-Stream Fusion</a> 这篇文章认为, early fusion 比 late fusion 能够更好融合外观信息和时序信息.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/early_fusion.png" alt="" /></p>
+<p>准确率也进一步提高了</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>UCF101</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IDT</td>
+<td>87.9%</td>
+</tr>
+<tr>
+<td>DeepVideo</td>
+<td>65.4%</td>
+</tr>
+<tr>
+<td>Two-Stream</td>
+<td>88.0%</td>
+</tr>
+<tr>
+<td>TDD</td>
+<td>91.5%</td>
+</tr>
+<tr>
+<td>Beyond-Short-Snippets</td>
+<td>88.6%</td>
+</tr>
+<tr>
+<td>Two-Stream Fusion</td>
+<td>92.5%</td>
+</tr>
+</tbody>
+</table>
+<p>截止目前最出名的应该还是王利民老师的 <a target="_blank" rel="noopener" href="https://link.springer.com/chapter/10.1007/978-3-319-46484-8_2">TSN</a> 方法.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/tsn.png" alt="" /></p>
+<p>先把 video 分成若干个时序长度一致的 segments, 从这些 segments 中再随机选择一个小的 snippets(一帧或多帧, 论文中为一帧) 再扔进 two-stream 中, 然后将不同 segment 的特征融合后输出分类结果, 以这种方式来对长时间的时序信息进行建模.</p>
+<p>TSN 不但效果好, 而且用的是稀疏采样的策略, 也大大减少了训练成本, 这种稀疏采样的策略也保留了一定的时序信息. 上图中的 Segmental Consensus 是特征融合函数, 有 max, average, weighted average 这三种, 作者做了消融性实验证明 average 效果最好.</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>UCF101</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IDT</td>
+<td>87.9%</td>
+</tr>
+<tr>
+<td>DeepVideo</td>
+<td>65.4%</td>
+</tr>
+<tr>
+<td>Two-Stream</td>
+<td>88.0%</td>
+</tr>
+<tr>
+<td>TDD</td>
+<td>91.5%</td>
+</tr>
+<tr>
+<td>Beyond-Short-Snippets</td>
+<td>88.6%</td>
+</tr>
+<tr>
+<td>Two-Stream Fusion</td>
+<td>92.5%</td>
+</tr>
+<tr>
+<td>TSN</td>
+<td>94.0%</td>
+</tr>
+</tbody>
+</table>
+<p>TSN 中的 Segmental Consensus 本质上是池化操作, 所以 <a target="_blank" rel="noopener" href="https://openaccess.thecvf.com/content_cvpr_2017/html/Diba_Deep_Temporal_Linear_CVPR_2017_paper.html">TLE</a> 认为通过引入 feature encoding 能够生成全局的特征, 从而提升精度, 提出了 TLE(Temporal Layer Encoding) 来更好地 encoding 特征.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/tle.png" alt="" /></p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>UCF101</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IDT</td>
+<td>87.9%</td>
+</tr>
+<tr>
+<td>DeepVideo</td>
+<td>65.4%</td>
+</tr>
+<tr>
+<td>Two-Stream</td>
+<td>88.0%</td>
+</tr>
+<tr>
+<td>TDD</td>
+<td>91.5%</td>
+</tr>
+<tr>
+<td>Beyond-Short-Snippets</td>
+<td>88.6%</td>
+</tr>
+<tr>
+<td>Two-Stream Fusion</td>
+<td>92.5%</td>
+</tr>
+<tr>
+<td>TSN</td>
+<td>94.0%</td>
+</tr>
+<tr>
+<td>TLE</td>
+<td>95.6%</td>
+</tr>
+</tbody>
+</table>
+<p>上面双流的方法虽然效果比较好了, 但仍然存在一个很大的问题: 计算光流需要耗费巨大的计算资源以及存储空间, 而且很显然不能端到端地训练, 所以出现了 <a target="_blank" rel="noopener" href="https://www.cv-foundation.org/openaccess/content_iccv_2015/html/Tran_Learning_Spatiotemporal_Features_ICCV_2015_paper.html">C3D (3D CNN)</a>, 通过把 VGG-16 中的 2D CNN 换成 3D CNN 来做行为识别:</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/c3d.png" alt="" /></p>
+<p>可以看到结果并不是很好, 为什么结果不好呢? <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1705.07750.pdf">I3D</a> 认为这是由于 3D CNN 难以训练导致的, 或者说模型从头训练都容易出现结果不好, 所以这篇文章提出 Inflating 来把在 ImageNet 上预训练好的 2D CNN 转为 3D CNN, 并使用 Bootstrapping 来把 2D CNN 的权重迁移到膨胀后的 3D CNN 上. 由于是 CVPR 2017 的工作, 所以这里选择的 Backbone 是 Inception-V1.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/i3d.png" alt="" /></p>
+<p>I3D 的效果好到爆炸, 从此行为识别正式进入 3D CNN 一统天下的时代.</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>UCF101</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IDT</td>
+<td>87.9%</td>
+</tr>
+<tr>
+<td>DeepVideo</td>
+<td>65.4%</td>
+</tr>
+<tr>
+<td>Two-Stream</td>
+<td>88.0%</td>
+</tr>
+<tr>
+<td>TDD</td>
+<td>91.5%</td>
+</tr>
+<tr>
+<td>Beyond-Short-Snippets</td>
+<td>88.6%</td>
+</tr>
+<tr>
+<td>Two-Stream Fusion</td>
+<td>92.5%</td>
+</tr>
+<tr>
+<td>TSN</td>
+<td>94.0%</td>
+</tr>
+<tr>
+<td>TLE</td>
+<td>95.6%</td>
+</tr>
+<tr>
+<td>C3D</td>
+<td>82.3%</td>
+</tr>
+<tr>
+<td>I3D (RGB)</td>
+<td>95.6%</td>
+</tr>
+<tr>
+<td>I3D (RGB+Flow)</td>
+<td>98.0%</td>
+</tr>
+</tbody>
+</table>
+<p>由于 UCF101 已经不能满足学术界的刷榜要求了, 所以这篇文章也提出了一个目前经常用的数据集: Kinetics.</p>
+<p>后续基于 3D CNN 的模型和论文也有很多, 这里只看以下几种, 主流的是在提升精度的同时考虑 3D CNN 的计算量问题.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/3d_cnn_models.png" alt="" /></p>
+<p>3D CNN 计算量太大了, 所以用类似深度可分离卷积的方式来分离 3D CNN, <a target="_blank" rel="noopener" href="https://openaccess.thecvf.com/content_iccv_2017/html/Qiu_Learning_Spatio-Temporal_Representation_ICCV_2017_paper.html">P3D</a> 把它解耦为空间卷积和时序卷积:</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/p3d.png" alt="" /></p>
+<p>除了 P3D, 以外也有一些其他方法也是解耦 3D CNN 的思路, 例如 R(2+1)D 等</p>
+<p>UCF101 再刷就没意义了, 上 Kinetics-400 的结果:</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>Kinetics-400</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C3D</td>
+<td>59.5%</td>
+</tr>
+<tr>
+<td>I3D</td>
+<td>71.1%</td>
+</tr>
+<tr>
+<td>P3D</td>
+<td>72.6%</td>
+</tr>
+</tbody>
+</table>
+<p><a target="_blank" rel="noopener" href="http://openaccess.thecvf.com/content_ECCV_2018/html/Mohammadreza_Zolfaghari_ECO_Efficient_Convolutional_ECCV_2018_paper.html">ECO</a> 这篇文章也是在提升效率的同时提高精度, 想法是同时使用 2D CNN 和 3D CNN, 而不是对 3D CNN 进行解耦.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/eco.png" alt="" /></p>
+<p>从上图可以看到对于每个帧都利用 2D CNN 处理, 然后再把特征图堆叠起来给 3D CNN 处理. 为了进一步减少参数量作者还提出了个 ECO-Lite, 如下图所示.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/eco_lite_and_full_eco.png" alt="" /></p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>Kinetics-400</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C3D</td>
+<td>59.5%</td>
+</tr>
+<tr>
+<td>I3D</td>
+<td>71.1%</td>
+</tr>
+<tr>
+<td>P3D</td>
+<td>72.6%</td>
+</tr>
+<tr>
+<td>ECO</td>
+<td>70.0%</td>
+</tr>
+</tbody>
+</table>
+<p>3D CNN 获取时序信息是通过在 temporal 维度上进行卷积来实现的, 但一些有用的信息可能在网络后面的 stage 中丢失, 所以 Kaiming He 提出了 <a target="_blank" rel="noopener" href="https://openaccess.thecvf.com/content_cvpr_2018/html/Wang_Non-Local_Neural_Networks_CVPR_2018_paper.html">Non-Local</a> , 利用 self-attention 来捕获 long-term 的时序依赖</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/non_local.png" alt="" /></p>
+<p>直观地看, non-local 做的事情是把当前帧的某些位置和其他帧的某些位置给联系起来, 从而帮助更好地进行行为识别</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/non_local_function.png" alt="" /></p>
+<p>Kaiming He 的论文结果都是爆炸无敌好</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>Kinetics-400</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C3D</td>
+<td>59.5%</td>
+</tr>
+<tr>
+<td>I3D</td>
+<td>71.1%</td>
+</tr>
+<tr>
+<td>P3D</td>
+<td>72.6%</td>
+</tr>
+<tr>
+<td>ECO</td>
+<td>70.0%</td>
+</tr>
+<tr>
+<td>Non-Local</td>
+<td>77.7%</td>
+</tr>
+</tbody>
+</table>
+<p>继 Non-Local 后 Kaiming He 又搞了篇 Video 的论文, <a target="_blank" rel="noopener" href="http://openaccess.thecvf.com/content_ICCV_2019/html/Feichtenhofer_SlowFast_Networks_for_Video_Recognition_ICCV_2019_paper.html">SlowFast</a>, 同样兼顾了性能和效率, 在 FLOPs 只有 之前 SOTA 的 10%, 但 top-1 精度却大涨了 5%! 先看结果!</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/slow_fast_result.png" alt="" /></p>
+<p>SlowFast 的想法是对不同的时序速度进行建模, 而不是像 two-stream 那样对空间和时间分开建模, 这种想法来自人脑研究.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/slowfast.png" alt="" /></p>
+<p>有 2 个 path, slow path 是 low frame rate, 但通道数多, 用于捕获空间语义特征, fast path 是 high frame rate, 通道数少, 用于捕获动作信息. 论文中 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>α</mi><mo>=</mo><mn>8</mn><mo separator="true">,</mo><mi>β</mi><mo>=</mo><mfrac><mn>1</mn><mn>8</mn></mfrac></mrow><annotation encoding="application/x-tex">\alpha=8, \beta=\frac{1}{8}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.0037em;">α</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord">8</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault" style="margin-right:0.05278em;">β</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.190108em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.845108em;"><span style="top:-2.6550000000000002em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">8</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>Kinetics-400</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C3D</td>
+<td>59.5%</td>
+</tr>
+<tr>
+<td>I3D</td>
+<td>71.1%</td>
+</tr>
+<tr>
+<td>P3D</td>
+<td>72.6%</td>
+</tr>
+<tr>
+<td>ECO</td>
+<td>70.0%</td>
+</tr>
+<tr>
+<td>Non-Local</td>
+<td>77.7%</td>
+</tr>
+<tr>
+<td>SlowFast</td>
+<td>78.0%</td>
+</tr>
+</tbody>
+</table>
+<p>图像分类里面 EfficientNet 大杀四方, 那把这个思想拿来做 3D CNN 不也能搞一篇顶会嘛, <a target="_blank" rel="noopener" href="https://openaccess.thecvf.com/content_CVPR_2020/html/Feichtenhofer_X3D_Expanding_Architectures_for_Efficient_Video_Recognition_CVPR_2020_paper.html">X3D</a> 正式出现, 在不同的维度对 backbone 进行缩放来实现 accuracy 和 efficiency 的 trade-off.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/x3d.png" alt="" /></p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>Kinetics-400</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C3D</td>
+<td>59.5%</td>
+</tr>
+<tr>
+<td>I3D</td>
+<td>71.1%</td>
+</tr>
+<tr>
+<td>P3D</td>
+<td>72.6%</td>
+</tr>
+<tr>
+<td>ECO</td>
+<td>70.0%</td>
+</tr>
+<tr>
+<td>Non-Local</td>
+<td>77.7%</td>
+</tr>
+<tr>
+<td>SlowFast</td>
+<td>78.0%</td>
+</tr>
+<tr>
+<td>X3D</td>
+<td>80.4%</td>
+</tr>
+</tbody>
+</table>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/x3d_results.png" alt="" /></p>
+<p>上面说的都是 one-stream, two-stream 和 3D CNN 范式的模型, 这里也说一些其他范式的模型(非全部):</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/other_action_recognition_methods.png" alt="" /></p>
+<p><a target="_blank" rel="noopener" href="https://www.cv-foundation.org/openaccess/content_cvpr_2015/html/Fernando_Modeling_Video_Evolution_2015_CVPR_paper.html">Rank Pooling</a> 考虑了时序顺序的重要性, 先通过一个 Ranking Machine 来学习外观的变换, 返回一个 ranking function, 用来对所有的 frames 排序, 通过不断调整预测的排序来更好地学习 video representation.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/rank_pooling.png" alt="" /></p>
+<p><a target="_blank" rel="noopener" href="https://openaccess.thecvf.com/content_cvpr_2018/html/Wu_Compressed_Video_Action_CVPR_2018_paper.html">Compressed Videos</a> 也是为了效率, 利用 motion vectors + residual images 来替代光流, 如下图所示, I-frame 就是正常的 RGB frame, P-frame 是由 I-frame 得到的数据, 上下分别代表 motion vector 和 residual image, 对 I-frame 分配更多的权重, 对 P-frame 分配更少的权重, 以此来提高训练效率.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/compressed_video.png" alt="" /></p>
+<p>需要注意的是, 这里所有的 P-frame 能够通过累加的方式恢复到 I-frame.</p>
+<p>既然光流的计算非常耗计算资源和存储空间, 那么能不能用 CNN 来端到端地学习光流呢? <a target="_blank" rel="noopener" href="http://openaccess.thecvf.com/content_cvpr_2018/html/Wu_Compressed_Video_Action_CVPR_2018_paper.html">Flow-mimic</a> 通过用无监督的方式(隐式)训练 motion flow 来代替光流, 并以此训练网络.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/hidden_two_stream_cnn.png" alt="" /></p>
+<p>之前在说 TDD 的时候说到了 trajectory pooling, <a target="_blank" rel="noopener" href="http://papers.nips.cc/paper/7489-trajectory-convolution-for-action-recognition">Trajectory Convolution</a> 提出用 Trajectory Convolution 来代替传统的卷积</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/trajectory_conv.png" alt="" /></p>
+<p><a target="_blank" rel="noopener" href="https://openaccess.thecvf.com/content_ECCV_2018/html/Bolei_Zhou_Temporal_Relational_Reasoning_ECCV_2018_paper.html">Relationship reasoning</a> 提出用 temporal relationship network 来学习和推理时序依赖, 后续的 TPN 那篇文章 follow 了这篇文章的思想</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/relationship_reasoning.png" alt="" /></p>
+<p>MIT 的韩松老师组提出了 <a target="_blank" rel="noopener" href="http://openaccess.thecvf.com/content_ICCV_2019/html/Lin_TSM_Temporal_Shift_Module_for_Efficient_Video_Understanding_ICCV_2019_paper.html">TSM</a> 模块, 通过在时序维度上 shift 一部分通道来促进相邻帧之间的信息交流, 这种模块能够用于 2D CNN 上, 使 2D CNN 也能对动作进行建模, 其实也是为了效率, 希望用 2D CNN 来代替 3D CNN, 减少模型计算量.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/tsm.png" alt="" /></p>
+<p><a target="_blank" rel="noopener" href="https://openaccess.thecvf.com/content_CVPR_2020/html/Li_TEA_Temporal_Excitation_and_Aggregation_for_Action_Recognition_CVPR_2020_paper.html">TEA</a> 则是利用 2D CNN 和 Attention 来建模 long-term 的时序信息, 也是出于效率的考量.</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/tea.png" alt="" /></p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">Ming Li</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://coderming.cn/2020/10/21/Action-Recognition/">https://coderming.cn/2020/10/21/Action-Recognition/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/timeline.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> Donate<div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://limingcv.coding.net/p/images/d/images/git/raw/master/reward/wechat.png" target="_blank"><img class="post-qr-code-img" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/reward/wechat.png" alt="WeChat"/></a><div class="post-qr-code-desc">WeChat</div></li><li class="reward-item"><a href="https://qr.alipay.com/fkx12431y6k0soy7vokzi19" target="_blank"><img class="post-qr-code-img" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/reward/alipay.jpg" alt="AliPay"/></a><div class="post-qr-code-desc">AliPay</div></li></ul></div></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2020/10/19/Introduction-to-Video-Action-Understanding/"><img class="next-cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Introduction-to-Video-Action-Understanding/avatar.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">Introduction to Video Action Understanding</div></div></a></div></nav></article></main><footer id="footer" style="background-image: url(https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/timeline.png)"><div id="footer-wrap"><div class="copyright">&copy;2020 By Ming Li</div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">Local search</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>Powered by</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a></div></div></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css"><script>$(function () {
+  $('span.katex-display').wrap('<div class="katex-wrap"></div>')
+})</script></div></div></body></html>
