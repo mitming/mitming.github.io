@@ -181,10 +181,18 @@
       
       <categories>
           
-          <category> Backbone </category>
+          <category> Video </category>
           
       </categories>
       
+      
+        <tags>
+            
+            <tag> Video </tag>
+            
+            <tag> Action </tag>
+            
+        </tags>
       
     </entry>
     
@@ -252,7 +260,7 @@
       
       <categories>
           
-          <category> Video Analysis </category>
+          <category> Video </category>
           
       </categories>
       
@@ -279,7 +287,7 @@
       
       <categories>
           
-          <category> Video Analysis </category>
+          <category> Video </category>
           
       </categories>
       
@@ -392,6 +400,8 @@
       
         <tags>
             
+            <tag> Object Detection </tag>
+            
             <tag> Weakly Supervised </tag>
             
         </tags>
@@ -417,7 +427,11 @@
       
         <tags>
             
+            <tag> Object Detection </tag>
+            
             <tag> NAS </tag>
+            
+            <tag> Efficient </tag>
             
         </tags>
       
@@ -444,6 +458,8 @@
             
             <tag> NAS </tag>
             
+            <tag> Efficient </tag>
+            
         </tags>
       
     </entry>
@@ -468,6 +484,8 @@
         <tags>
             
             <tag> NAS </tag>
+            
+            <tag> Efficient </tag>
             
         </tags>
       
@@ -592,7 +610,7 @@
       
         <tags>
             
-            <tag> Lightweight Network </tag>
+            <tag> Efficient </tag>
             
         </tags>
       
@@ -667,7 +685,7 @@
       
         <tags>
             
-            <tag> Lightweight Network </tag>
+            <tag> Efficient </tag>
             
         </tags>
       
