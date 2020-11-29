@@ -1,0 +1,209 @@
+<!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FineGym | Ming</title><meta name="keywords" content="Video,Action"><meta name="author" content="Ming Li"><meta name="copyright" content="Ming Li"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="关于这篇文章的详细信息, 作者(邵典小姐姐)已经在 知乎 上写的很清楚了, 也写的非常地…生动…然后项目主页得到更加详细的数据描述, 这篇博客主要就是简单介绍下, 然后分析下实验结果. 提出了一个非常棒的数据集, 把所有的动作在语义层面按照细粒度分为了 3 个级别, 分别是:  事件类别 (event) 组类别 (set) 元素类别 (element)  在时序上分为了 动作 和 子动作, 一个动">
+<meta property="og:type" content="article">
+<meta property="og:title" content="FineGym">
+<meta property="og:url" content="https://coderming.cn/2020/11/29/FineGym/index.html">
+<meta property="og:site_name" content="Ming">
+<meta property="og:description" content="关于这篇文章的详细信息, 作者(邵典小姐姐)已经在 知乎 上写的很清楚了, 也写的非常地…生动…然后项目主页得到更加详细的数据描述, 这篇博客主要就是简单介绍下, 然后分析下实验结果. 提出了一个非常棒的数据集, 把所有的动作在语义层面按照细粒度分为了 3 个级别, 分别是:  事件类别 (event) 组类别 (set) 元素类别 (element)  在时序上分为了 动作 和 子动作, 一个动">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/11/FineGym/avaatr.png">
+<meta property="article:published_time" content="2020-11-29T04:13:32.000Z">
+<meta property="article:modified_time" content="2020-11-29T10:26:03.000Z">
+<meta property="article:author" content="Ming Li">
+<meta property="article:tag" content="Video">
+<meta property="article:tag" content="Action">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/11/FineGym/avaatr.png"><link rel="shortcut icon" href="/img/avatar.jpg"><link rel="canonical" href="https://coderming.cn/2020/11/29/FineGym/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  hexoversion: '5.2.0',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"We didn't find any results for the search: ${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: false,
+  postUpdate: '2020-11-29 18:26:03'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {
+  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }
+})()</script><meta name="generator" content="Hexo 5.2.0"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">Articles</div><div class="length_num">33</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">Tags</div><div class="length_num">15</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">Categories</div><div class="length_num">8</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/images/"><i class="fa-fw fas fa-images"></i><span> Images</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div></div></div></div><div id="body-wrap"><div id="web_bg"></div><header class="post-bg" id="page-header" style="background-image: url(https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/11/FineGym/avaatr.png)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Ming</a></span><span id="menus"><div id="search_button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> Search</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> Tags</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> Categories</span></a></div><div class="menus_item"><a class="site-page" href="/images/"><i class="fa-fw fas fa-images"></i><span> Images</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> Link</span></a></div></div><span class="close" id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">FineGym</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2020-11-29T04:13:32.000Z" title="Created 2020-11-29 12:13:32">2020-11-29</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2020-11-29T10:26:03.000Z" title="Updated 2020-11-29 18:26:03">2020-11-29</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Video/">Video</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word count:</span><span class="word-count">1.8k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading time:</span><span>5min</span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p>关于这篇文章的详细信息, 作者(<a target="_blank" rel="noopener" href="https://sdolivia.github.io/">邵典</a>小姐姐)已经在 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/130720627">知乎</a> 上写的很清楚了, 也写的非常地…生动…然后<a target="_blank" rel="noopener" href="https://sdolivia.github.io/FineGym/">项目主页</a>得到更加详细的数据描述, 这篇博客主要就是简单介绍下, 然后分析下实验结果.</p>
+<p>提出了一个非常棒的数据集, 把所有的动作在语义层面按照细粒度分为了 3 个级别, 分别是:</p>
+<ol>
+<li>事件类别 (event)</li>
+<li>组类别 (set)</li>
+<li>元素类别 (element)</li>
+</ol>
+<p>在时序上分为了 <strong>动作</strong> 和 <strong>子动作</strong>, 一个动作内部会有多个子动作，这些子动作的时域位置会被标注。<strong>动作由事件类别来描述，而时域上更细粒度的子动作可以由组类别和元素类别两种粒度进行描述。</strong></p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/11/FineGym/finegym.png" alt="" /></p>
+<p>值得注意的是，FineGym中子动作的持续时间往往很短，大部分在几秒的长度，但信息量却很大（下面的实验部分有提到）。这种短时限制有效保证了数据的细粒度。</p>
+<p>对女子的四种事件（女子跳马，女子平衡木，女子自由体操和女子高低杠）进行了“3+2”的细粒度标注。基于这四种事件类别，FineGym定义和筛选了15个组类别，并由此进一步定义了530种不同的元素类别，其中共354类目前具有子动作数据，这种情况源自于体操动作本身使用的不均衡性。FineGym保留了原始的分布，但也提供了两版不同的数据集以供选择：</p>
+<ul>
+<li>Gym99共99类，数据分布相对更加均衡；</li>
+<li>Gym288共288类，数据分布较不平衡。</li>
+</ul>
+<p>好那么接下来就直接进入实验结果分析的环境, 首先看下经典方法 TSN 在整个数据集上的表现:</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/11/FineGym/tsn_basic_result.png" alt="" /></p>
+<p>看起来好像还不错, 但可以看出在最粗粒度的识别(事件类别 event)中, appearance 特征的贡献远远超过了 flow 特征, 且准确率已经趋于饱和, 但在更细一点的粒度(组类别 set)上, flow 的作用就比 RGB 大了, 这说明更加细粒度的动作识别需要更加关注动作本身, 而不是一些场景/物体信息.</p>
+<p>然后作者给出了目前主流的方法在 FineGym 上的结果:</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/11/FineGym/element_level_results.png" alt="" /></p>
+<p>上面的 3 个表代表 3 种不同的数据集设置</p>
+<ol>
+<li>elements across all events<br />
+同时使用存在长尾问题的数据集 Gym288 和平衡的数据集 Gym99 中所有的 elements</li>
+<li>elements within an event<br />
+从 Gym99 中选择 2 个特定事件类别(event) 的所有元素类别(element)作为数据集, 这 2 个类别分别是跳马(VT)和自由体操(FX), 分别有 4 个和 1 个 组类别 (set), 使用其他中所有的 elements</li>
+<li>elements within a set<br />
+选择 FX-G1 这个 set 中的所有元素(element) 和 UB-G1 这个 set 中的所有元素(element) 作为数据集.</li>
+</ol>
+<p>作者在这 3 种数据集下做了实验, 得到的结论如下:<br />
+<strong>1. 在第一个数据集设置中, 由于存在长尾分布, 所有的方法都会倾向于有最多数量的 element 动作, 尤其在 Gym288 数据集上<br />
+2. 相比于 RGB 信息, flow 信息更加重要, 上表中除了 VT(跳马) 这一项运动外全都是 Flow 的结果更好, 作者解释是因为跳马这个 event 中的 elements 动作都有剧烈的外观变化, 所以这项运动的 RGB 信息更加重要.<br />
+3. 对时序信息建模是很重要的, 因为 TRN 和 TSM 的效果都远远超过了 TSN<br />
+4. 以 I3D 和 NL I3D 为例, 不管是在 ImageNet 上还是在 Kinetics 上预训练, 其结果相差不大, 带 * 的是在 Kinetics 上预训练, 作者认为这是由于 FineGym 数据集的 elements 动作和 Kinetics 中动作的时序信息相差太大导致的. (因为体操中每个 element 动作都很快, 所以只有很短的几秒, 但 Kinetics 中动作的时间比这个长多了)<br />
+5. 基于骨骼信息的方法(ST-GCN)表现不佳, 作者认为原因可能是在运动项目中运动员的关键点预测的结果不好.</strong></p>
+<p>上面都在说不同的 action recognition 方法在这个数据集上的表现, 作者也用 SSN 来测试了 Action Localization 在数据集上的表现</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/11/FineGym/ssn_result.png" alt="" /></p>
+<p>可以看到对于子动作的定位显然更加困难, 也说明了 Action Localization 这个 task 其实还是有不少问题, 作者在文中提到为了更好地对 sub-action 定位, 可能需要更好地理解整个 action.</p>
+<p>最后作者也分析了一些设置对于这个数据集有什么影响.</p>
+<p>首先是<strong>稀疏采样</strong>得到的总帧数对结果的影响:</p>
+<p><img src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/11/FineGym/soarse_sample_effect.png" alt="" /></p>
+<p>可以看到在 UCF101 和 Activity v1.2 这 2 个数据集上只需要几帧就能够得到更好的结果, 但在 FineGym 上则需要更多的帧, 并且准确率随着帧数稳步提升, 这表明在 FineGym 上, 每一帧都有利于细粒度的 action recognition.</p>
+<p>然后是时序信息的影响有多大?</p>
+<p>作者这里做了 3 个实验, 第一个实验表明 flow 能够带来比 RGB 信息更大的性能提升</p>
+<p>performance_gain_flow.png)</p>
+<p>第二个实验在测试时打乱了所有帧的顺序, 然后发现那些对时序信息进行建模了的方法(TSM, TRN)都出现了比较大的精度下降.</p>
+<p>performance_drop_with_shuffle.png)</p>
+<p>第三个实验表明, 如果测试阶段的帧数和训练阶段的帧数(动作的快慢程度)相差过大时, TSM 的精度会掉的很多, 但 TSN 却没啥影响, 因为 TSM 对时序进行了建模而 TSN 却没有.</p>
+<p>上面三个实验都说明了对时序信息进行建模在 FineGym 这个数据集上是至关重要的.</p>
+<p>最后作者表明, 不管模型是在 ImageNet 还是 Kinetics 上预训练, 结果都不会影响特别大, 作者认为这是由于预训练数据集和 FineGym 数据集动作之间差异过大导致的, 也就是粗粒度动作和细粒度动作在时序上存在比较大的差异导致的.</p>
+<p>作者也分析了为什么当前的方法不能很好地在 FineGym 上刷榜…</p>
+<ol>
+<li>剧烈运动<br />
+FineGym 的运动都是比较剧烈的, 时间很短, 所以帧数很少</li>
+<li>微妙的空间语义<br />
+不同动作之间的语义信息差的不多, 所以不能直接通过背景或者其他东西来直接分类, 它涉及身体部位的差异，例如腿是弯曲的还是笔直的，以及人与物体之间的关系</li>
+<li>复杂的时序动态<br />
+例如动作的角度和旋转方向不同会导致不同的动作类别.</li>
+<li>关系推理<br />
+例如萨尔托斯(某个动作, 例如旋转)的时间的不同会导致不同的动作分类</li>
+</ol>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">Ming Li</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="https://coderming.cn/2020/11/29/FineGym/">https://coderming.cn/2020/11/29/FineGym/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Video/">Video</a><a class="post-meta__tags" href="/tags/Action/">Action</a></div><div class="post_share"><div class="social-share" data-image="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/11/FineGym/avaatr.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> Donate<div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://limingcv.coding.net/p/images/d/images/git/raw/master/reward/wechat.png" target="_blank"><img class="post-qr-code-img" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/reward/wechat.png" alt="WeChat"/></a><div class="post-qr-code-desc">WeChat</div></li><li class="reward-item"><a href="https://qr.alipay.com/fkx12431y6k0soy7vokzi19" target="_blank"><img class="post-qr-code-img" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/reward/alipay.jpg" alt="AliPay"/></a><div class="post-qr-code-desc">AliPay</div></li></ul></div></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2020/11/23/EvolvingLosses/"><img class="next-cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/11/EvolvingLosses/avatar.png" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">Evolving Losses for Unsupervised Video Representation Learning</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2020/10/01/Action-Localization-Paper-List/" title="Action Localization Paper List"><img class="cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Localization-Paper-List/temporal_action_localization.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-10-01</div><div class="title">Action Localization Paper List</div></div></a></div><div><a href="/2020/10/19/Introduction-to-Video-Action-Understanding/" title="Introduction to Video Action Understanding"><img class="cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Introduction-to-Video-Action-Understanding/avatar.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-10-19</div><div class="title">Introduction to Video Action Understanding</div></div></a></div><div><a href="/2020/10/02/Action-Recognition-Paper-List/" title="Action Recognition Paper List"><img class="cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition-Paper-List/avatar.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-10-02</div><div class="title">Action Recognition Paper List</div></div></a></div><div><a href="/2020/10/21/Action-Recognition/" title="Action Recognition"><img class="cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Action-Recognition/timeline.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-10-21</div><div class="title">Action Recognition</div></div></a></div><div><a href="/2020/10/26/Multigrid-Training/" title="Multigrid Training"><img class="cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/Multigrid-Training/grid_schedule.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-10-26</div><div class="title">Multigrid Training</div></div></a></div><div><a href="/2020/10/27/SlowFast/" title="SlowFast"><img class="cover" src="https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/10/SlowFast/avatar.png"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-10-27</div><div class="title">SlowFast</div></div></a></div></div></div></article></main><footer id="footer" style="background-image: url(https://limingcv.coding.net/p/images/d/images/git/raw/master/posts/2020/11/FineGym/avaatr.png)"><div id="footer-wrap"><div class="copyright">&copy;2020 By Ming Li</div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">Local search</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="Search for Posts" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>Powered by</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a></div></div></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css"><script src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script><link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css"><script>$(function () {
+  $('span.katex-display').wrap('<div class="katex-wrap"></div>')
+})</script></div></div></body></html>
